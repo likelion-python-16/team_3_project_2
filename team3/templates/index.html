@@ -1,0 +1,200 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>골목상권 빅데이터 분석</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="container topbar__row">
+      <div class="logo">
+        <span>🧭</span>
+        <span class="logo__title">골목상권 빅데이터 분석</span>
+        <span class="badge">실시간 지역 상권 분석 서비스</span>
+      </div>
+      <nav class="top-actions">
+        <button class="btn btn--ghost" id="btnPricing">요금제 보기</button>
+        <button class="btn btn--primary" id="btnOpenLogin">로그인</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container hero__wrap">
+      <div class="hero__text">
+        <h1>데이터로 보는 골목상권의 미래</h1>
+        <p>빅데이터와 공공데이터를 활용하여 동·골목 단위의 세밀한 상권 분석을 제공합니다.</p>
+      </div>
+      <div class="hero__cta">
+        <button class="pill" id="btnStart">무료로 시작하기</button>
+        <button class="pill pill--light" id="btnTry">요약 피드 보기</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="container tabs__wrap">
+      <button class="tab active" data-tab="map">지도 분석</button>
+      <button class="tab" data-tab="franchise">카페 분석</button>
+      <button class="tab" data-tab="trend">트렌드</button>
+      <button class="tab" data-tab="report">보고서</button>
+      <div class="tabs__note">현재 미리보기 모드입니다. 모든 기능은 로그인하면 이용할 수 있어요.</div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <main class="container main">
+    <!-- Left: Filters & KPI -->
+    <aside class="panel">
+      <h3>지역 및 업종 필터</h3>
+
+      <div class="field">
+        <label class="label">지역 선택</label>
+        <select id="selRegion">
+          <option>마포구</option><option>송파구</option><option>광진구</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="label">업종 대분류</label>
+        <select id="selMajor">
+          <option>전체</option><option>외식</option><option>서비스</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="label">업종 중분류</label>
+        <select id="selMid">
+          <option>전체</option><option>카페</option><option>디저트</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="label">인기 프랜차이즈 선택</label>
+        <div class="chip-row">
+          <span class="chip">투썸플레이스</span>
+          <span class="chip">스타벅스</span>
+          <span class="chip">메가커피</span>
+          <span class="chip">빽다방</span>
+        </div>
+      </div>
+
+      <h3 style="margin-top:18px">주요 지표</h3>
+      <div class="stat"><div><div class="k">총 상가수</div><div class="v" id="k_store">12,847</div></div></div>
+      <div class="stat"><div><div class="k">매출 증가율</div><div class="v up">+8.2%</div></div></div>
+      <div class="stat"><div><div class="k">위험 지역</div><div class="v warn">23곳</div></div></div>
+      <div class="stat"><div><div class="k">신규 창업</div><div class="v up">+156</div></div></div>
+
+      <div class="panel panel--notice">
+        <span>미리보기 모드</span>
+        <button class="btn btn--ghost" id="btnOpenLogin2">로그인하기</button>
+      </div>
+    </aside>
+
+    <!-- Right: Content panes -->
+    <section>
+      <!-- Map -->
+      <div class="card tab-pane" id="pane-map">
+        <div class="card__head">
+          <h3>마포구 상권 지도 <span class="tag">전체 업종 분석 결과</span></h3>
+          <div class="legend">
+            <span class="dot g"></span><small class="muted">안정</small>
+            <span class="dot y"></span><small class="muted">주의</small>
+            <span class="dot r"></span><small class="muted">위험</small>
+          </div>
+        </div>
+        <div id="gridMap" class="map"></div>
+        <div class="grid-4 kpi-grid">
+          <div class="kpi"><div class="t">표시된 상권 수</div><div class="v" id="k_cnt">5</div></div>
+          <div class="kpi"><div class="t">전체 사업자</div><div class="v">775</div></div>
+          <div class="kpi"><div class="t">평균 성장률</div><div class="v up">+7.9%</div><div class="s">Weighted avg</div></div>
+          <div class="kpi"><div class="t">위험 지역</div><div class="v warn">1</div></div>
+        </div>
+      </div>
+
+      <!-- Franchise -->
+      <div class="card tab-pane" id="pane-franchise" hidden>
+        <h3>마포구 프랜차이즈별 분석</h3>
+        <div class="grid-4 kpi-grid">
+          <div class="kpi"><div class="t">카페 수</div><div class="v">8</div><div class="s">↑ from last month</div></div>
+          <div class="kpi"><div class="t">사업자 수</div><div class="v">391</div><div class="s">-12% MoM</div></div>
+          <div class="kpi"><div class="t">매출액</div><div class="v">4.8억원</div><div class="s">+5% MoM</div></div>
+          <div class="kpi"><div class="t">평균 성장률</div><div class="v up">+13.1%</div></div>
+        </div>
+
+        <div class="bars">
+          <div class="row"><div class="brand">투썸플레이스</div><div class="bar"><span style="width:68%"></span></div><div class="bar-meta">월평균 8,500만 · 10.7%</div></div>
+          <div class="row"><div class="brand">스타벅스</div><div class="bar"><span style="width:100%"></span></div><div class="bar-meta">월평균 1억2,500만 · 9.7%</div></div>
+          <div class="row"><div class="brand">메가커피</div><div class="bar"><span style="width:36%"></span></div><div class="bar-meta">월평균 4,500만 · 17.1%</div></div>
+          <div class="row"><div class="brand">빽다방</div><div class="bar"><span style="width:42%"></span></div><div class="bar-meta">월평균 5,200만 · 22.8%</div></div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <h3>위험도 분석</h3>
+          <div class="risk-grid">
+            <div class="risk ok"><div class="n">5</div><div class="muted">안정 프랜차이즈</div></div>
+            <div class="risk warn"><div class="n">2</div><div class="muted">주의 프랜차이즈</div></div>
+            <div class="risk bad"><div class="n">1</div><div class="muted">위험 프랜차이즈</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trend -->
+      <div class="card tab-pane" id="pane-trend" hidden>
+        <h3>마포구 트렌드 분석</h3>
+        <div class="grid-4 kpi-grid">
+          <div class="kpi"><div class="t">3년 성장률</div><div class="v up">+97.5%</div><div class="s">2019 대비</div></div>
+          <div class="kpi"><div class="t">신규 사업자</div><div class="v up">+62</div><div class="s">지난 12개월</div></div>
+          <div class="kpi"><div class="t">평균 생존율</div><div class="v">73.5%</div></div>
+          <div class="kpi"><div class="t">월 평균 매출 지수</div><div class="v">112</div><div class="s">기준=100</div></div>
+        </div>
+
+        <div class="bars">
+          <div class="row"><div class="brand">비건 &amp; 플로럴</div><div class="bar"><span style="width:80%"></span></div><div class="bar-meta">+230% · 18개</div></div>
+          <div class="row"><div class="brand">무인 매장</div><div class="bar"><span style="width:65%"></span></div><div class="bar-meta">+125% · 12개</div></div>
+          <div class="row"><div class="brand">갓성비 디저트</div><div class="bar"><span style="width:50%"></span></div><div class="bar-meta">+180% · 23개</div></div>
+          <div class="row"><div class="brand">온라인 픽업</div><div class="bar"><span style="width:55%"></span></div><div class="bar-meta">+95% · 31개</div></div>
+        </div>
+      </div>
+
+      <!-- Report -->
+      <div class="card tab-pane" id="pane-report" hidden>
+        <h3>보고서 생성</h3>
+        <div class="grid-4 kpi-grid">
+          <div class="kpi"><div class="t">상권 현황</div><div class="v">요약 보고서</div></div>
+          <div class="kpi"><div class="t">카테고리</div><div class="v">브랜드 비교</div></div>
+          <div class="kpi"><div class="t">트렌드</div><div class="v">핵심 이슈</div></div>
+          <div class="kpi"><div class="t">정책 제언</div><div class="v">PDF 출력</div></div>
+        </div>
+        <div class="panel">
+          <p class="muted">보고서 생성 기능은 로그인하면 사용할 수 있습니다.</p>
+          <button class="btn btn--primary" id="btnOpenLogin3">로그인하기</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Login dialog -->
+  <dialog id="dlgLogin" class="dialog">
+    <form method="dialog" class="dialog__card">
+      <h3>로그인</h3>
+      <div class="field"><label class="label">이메일</label><input id="email" type="email" required></div>
+      <div class="field"><label class="label">비밀번호</label><input id="password" type="password" required></div>
+      <div class="dialog__actions">
+        <button class="btn" value="cancel">취소</button>
+        <button class="btn btn--primary" id="btnLogin">로그인</button>
+      </div>
+      <p id="loginStatus" class="muted" style="margin-top:6px"></p>
+    </form>
+  </dialog>
+
+  <script src="{% static 'js/app.js' %}"></script>
+</body>
+</html>
