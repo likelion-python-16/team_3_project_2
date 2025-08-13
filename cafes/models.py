@@ -12,7 +12,7 @@ class ResidentPopulation(models.Model):
         return f"RP {self.rp_key}"
 
 
-class CafeIf(models.Model):
+class CafeId(models.Model):
     cafe_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=140)
     address = models.CharField(max_length=255)
@@ -31,7 +31,7 @@ class CafeSales(models.Model):
     price = models.PositiveIntegerField()
     visitor_count = models.PositiveIntegerField()
     aov = models.DecimalField(max_digits=10, decimal_places=2)
-    cafe = models.ForeignKey(CafeIf, on_delete=models.CASCADE, related_name="sales")
+    cafe = models.ForeignKey(CafeId, on_delete=models.CASCADE, related_name="sales")
     sales = models.PositiveIntegerField()
 
     class Meta:
@@ -46,7 +46,7 @@ class CafeReview(models.Model):
     review_score = models.FloatField()
     review_count = models.PositiveIntegerField()
     review_text = models.TextField()
-    cafe = models.ForeignKey(CafeIf, on_delete=models.CASCADE, related_name="reviews")
+    cafe = models.ForeignKey(CafeId, on_delete=models.CASCADE, related_name="reviews")
 
     def __str__(self):
         return f"Review {self.review_id}"

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ResidentPopulation, CafeIf, CafeSales, CafeReview, CafeTrendAI
+from .models import ResidentPopulation, CafeId, CafeSales, CafeReview, CafeTrendAI
 
 @admin.register(ResidentPopulation)
 class ResidentPopulationAdmin(admin.ModelAdmin):
@@ -8,8 +8,8 @@ class ResidentPopulationAdmin(admin.ModelAdmin):
     search_fields = ("rp_key",)
     ordering = ("rp_key",)
 
-@admin.register(CafeIf)
-class CafeIfAdmin(admin.ModelAdmin):
+@admin.register(CafeId)
+class CafeIdAdmin(admin.ModelAdmin):
     list_display = ("cafe_id", "name", "address", "biz_code", "latitude", "longitude", "rp_key")
     search_fields = ("name", "address", "biz_code")
     autocomplete_fields = ("rp_key",)

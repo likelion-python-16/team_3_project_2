@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}결제 수단{% endblock %}
+
+{% block content %}
+<div class="container main">
+    <div class="card">
+        <div class="card__head">
+            <h3>결제 수단 <span class="tag">전체 {{ providers|length }}개</span></h3>
+        </div>
+        
+        {% if providers %}
+            <div class="grid-3" style="gap: 16px; margin-top: 16px;">
+                {% for provider in providers %}
+                <div class="card">
+                    <div class="card__head">
+                        <h4>{{ provider.name }}</h4>
+                        <span class="chip">{{ provider.method }}</span>
+                    </div>
+                    
+                    <div class="field" style="margin-top: 12px;">
+                        <label class="label">Merchant ID</label>
+                        <p class="muted">{{ provider.merchant_id }}</p>
+                    </div>
+                    
+                    {% if provider.config_json %}
+                    <div style="margin-top: 12px;">
+                        <h5>설정 정보</h5>
+                        <div style="background: #f5f5f5; padding: 8px; border-radius: 4px; margin-top: 4px;">
+                            {% for key, value in provider.config_json.items %}
+                            <small class="muted">{{ key }}: {{ value }}</small><br>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if provider.payments.all %}
+                    <div style="margin-top: 12px;">
+                        <div class="kpi">
+                            <div class="t">총 결제 건수</div>
+                            <div class="v">{{ provider.payments.count }}건</div>
+                        </div>
+                        <small class="muted">최근 결제: {{ provider.payments.first.paid_at|date:"Y-m-d" }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="grid-4 kpi-grid" style="margin-top: 24px;">
+                <div class="kpi">
+                    <div class="t">전체 결제 수단</div>
+                    <div class="v">{{ providers|length }}개</div>
+                </div>
+                <div class="kpi">
+                    <div class="t">카드 결제</div>
+                    <div class="v up">{{ providers|dictsort:"method"|length }}개</div>
+                </div>
+                <div class="kpi">
+                    <div class="t">간편 결제</div>
+                    <div class="v">계산중</div>
+                </div>
+                <div class="kpi">
+                    <div class="t">활성 결제 수단</div>
+                    <div class="v">{{ providers|length }}개</div>
+                </div>
+            </div>
+        {% else %}
+            <div class="panel panel--notice">
+                <span>등록된 결제 수단이 없습니다.</span>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

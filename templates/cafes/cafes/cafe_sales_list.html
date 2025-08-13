@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}카페 매출 현황{% endblock %}
+
+{% block content %}
+<div class="container main">
+    <div class="card">
+        <div class="card__head">
+            <h3>카페 매출 현황 <span class="tag">전체 {{ sales|length }}건</span></h3>
+        </div>
+        
+        {% if sales %}
+            <div style="margin-top: 16px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <th style="padding: 12px; text-align: left;">카페명</th>
+                            <th style="padding: 12px; text-align: left;">날짜</th>
+                            <th style="padding: 12px; text-align: right;">매출액</th>
+                            <th style="padding: 12px; text-align: right;">방문자</th>
+                            <th style="padding: 12px; text-align: right;">객단가</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in sales %}
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 12px;">
+                                <a href="{% url 'cafes-web:cafe_detail' sale.cafe.cafe_id %}">{{ sale.cafe.name }}</a>
+                            </td>
+                            <td style="padding: 12px;">{{ sale.date|date:"Y-m-d" }}</td>
+                            <td style="padding: 12px; text-align: right;">{{ sale.sales|floatformat:0 }}원</td>
+                            <td style="padding: 12px; text-align: right;">{{ sale.visitor_count }}명</td>
+                            <td style="padding: 12px; text-align: right;">{{ sale.aov|floatformat:0 }}원</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="grid-4 kpi-grid" style="margin-top: 24px;">
+                <div class="kpi">
+                    <div class="t">총 매출액</div>
+                    <div class="v">{{ sales|length }}건</div>
+                </div>
+                <div class="kpi">
+                    <div class="t">평균 객단가</div>
+                    <div class="v">계산중</div>
+                </div>
+                <div class="kpi">
+                    <div class="t">총 방문자</div>
+                    <div class="v">계산중</div>
+                </div>
+                <div class="kpi">
+                    <div class="t">활성 카페</div>
+                    <div class="v">{{ sales|regroup:"cafe"|length }}개</div>
+                </div>
+            </div>
+        {% else %}
+            <div class="panel panel--notice">
+                <span>매출 데이터가 없습니다.</span>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

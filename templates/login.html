@@ -1,0 +1,234 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>로그인 - 골목상권 빅데이터 분석</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <style>
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .login-card {
+      background: white;
+      padding: 48px;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    .login-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .login-header h1 {
+      margin: 0 0 8px 0;
+      font-size: 28px;
+      color: #374151;
+    }
+    
+    .login-header p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 14px;
+    }
+    
+    .field {
+      margin-bottom: 20px;
+    }
+    
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      color: #374151;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    
+    .field input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+    
+    .field input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+    
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .login-btn:hover {
+      background: #2563eb;
+    }
+    
+    .login-btn:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    
+    .login-status {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      text-align: center;
+    }
+    
+    .login-status.error {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    
+    .login-status.success {
+      background: #f0fdf4;
+      color: #059669;
+      border: 1px solid #bbf7d0;
+    }
+    
+    .back-link {
+      text-align: center;
+      margin-top: 24px;
+    }
+    
+    .back-link a {
+      color: #6b7280;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    
+    .back-link a:hover {
+      color: #374151;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <h1>🧭 로그인</h1>
+        <p>골목상권 빅데이터 분석 서비스</p>
+      </div>
+      
+      <form id="loginForm">
+        <div class="field">
+          <label for="email">이메일</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="field">
+          <label for="password">비밀번호</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        
+        <button type="submit" class="login-btn" id="btnLogin">로그인</button>
+        
+        <div id="loginStatus"></div>
+      </form>
+      
+      <div class="back-link">
+        <a href="/">← 메인 페이지로 돌아가기</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    class LoginPage {
+      constructor() {
+        this.initializeEvents();
+      }
+      
+      initializeEvents() {
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          await this.login();
+        });
+      }
+      
+      async login() {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const statusEl = document.getElementById('loginStatus');
+        const btnLogin = document.getElementById('btnLogin');
+        
+        if (!email || !password) {
+          this.showStatus('이메일과 비밀번호를 입력해주세요.', 'error');
+          return;
+        }
+        
+        try {
+          btnLogin.disabled = true;
+          btnLogin.textContent = '로그인 중...';
+          statusEl.textContent = '';
+          
+          const response = await fetch('/api/accounts/users/login/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            // 토큰 저장
+            localStorage.setItem('auth_token', data.token);
+            
+            this.showStatus('로그인 성공! 메인 페이지로 이동합니다...', 'success');
+            
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 1500);
+            
+          } else {
+            this.showStatus(data.message, 'error');
+          }
+          
+        } catch (error) {
+          console.error('로그인 실패:', error);
+          this.showStatus('로그인 중 오류가 발생했습니다.', 'error');
+        } finally {
+          btnLogin.disabled = false;
+          btnLogin.textContent = '로그인';
+        }
+      }
+      
+      showStatus(message, type) {
+        const statusEl = document.getElementById('loginStatus');
+        statusEl.textContent = message;
+        statusEl.className = `login-status ${type}`;
+      }
+    }
+    
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', () => {
+      new LoginPage();
+    });
+  </script>
+</body>
+</html>

@@ -102,6 +102,6 @@ select,input{width:100%;padding:10px 12px;border:1px solid var(--line);border-ra
 .dot.g{background:#22c55e}.dot.y{background:#f59e0b}.dot.r{background:#ef4444}
 
 /* Dialog */
-.dialog{border:0;border-radius:16px;padding:0;box-shadow:var(--shadow);width:360px}
-.dialog__card{padding:18px;background:#fff;border-radius:16px}
+.dialog{width:400px;height:300px;border:0;border-radius:16px;padding:0;box-shadow:var(--shadow);}
+.dialog__card{padding:20px;background:#fff;border-radius:16px}
 .dialog__actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}

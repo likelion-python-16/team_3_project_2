@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}카페 목록{% endblock %}
+
+{% block content %}
+<div class="container main">
+    <div class="card">
+        <div class="card__head">
+            <h3>카페 목록 <span class="tag">전체 {{ cafes|length }}개</span></h3>
+        </div>
+        
+        {% if cafes %}
+            <div class="grid-3" style="gap: 16px; margin-top: 16px;">
+                {% for cafe in cafes %}
+                <div class="card">
+                    <h4>{{ cafe.name }}</h4>
+                    <p class="muted">{{ cafe.address }}</p>
+                    {% if cafe.biz_code %}
+                        <span class="chip">{{ cafe.biz_code }}</span>
+                    {% endif %}
+                    <div class="grid-2" style="margin-top: 12px;">
+                        <div class="kpi">
+                            <div class="t">위도</div>
+                            <div class="v">{{ cafe.latitude|floatformat:4 }}</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="t">경도</div>
+                            <div class="v">{{ cafe.longitude|floatformat:4 }}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 12px;">
+                        <a href="{% url 'cafes-web:cafe_detail' cafe.cafe_id %}" class="btn btn--ghost">상세보기</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="panel panel--notice">
+                <span>등록된 카페가 없습니다.</span>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

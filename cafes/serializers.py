@@ -1,14 +1,14 @@
 from rest_framework import serializers
-from .models import ResidentPopulation, CafeIf, CafeSales, CafeReview, CafeTrendAI
+from .models import ResidentPopulation, CafeId, CafeSales, CafeReview, CafeTrendAI
 
 class ResidentPopulationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResidentPopulation
         fields = "__all__"
 
-class CafeIfSerializer(serializers.ModelSerializer):
+class CafeIdSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CafeIf
+        model = CafeId
         fields = "__all__"
 
 class CafeSalesSerializer(serializers.ModelSerializer):

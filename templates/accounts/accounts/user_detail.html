@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ user.username }} - 사용자 상세{% endblock %}
+
+{% block content %}
+<div class="container main">
+    <div class="card">
+        <div class="card__head">
+            <h3>{{ user.username }}</h3>
+            <a href="{% url 'accounts-web:user_list' %}" class="btn btn--ghost">목록으로</a>
+        </div>
+        
+        <div class="grid-2" style="gap: 24px; margin-top: 16px;">
+            <div>
+                <h4>기본 정보</h4>
+                <div class="field">
+                    <label class="label">사용자 ID</label>
+                    <p>{{ user.user_id }}</p>
+                </div>
+                <div class="field">
+                    <label class="label">사용자명</label>
+                    <p>{{ user.username }}</p>
+                </div>
+                <div class="field">
+                    <label class="label">이메일</label>
+                    <p>{{ user.email }}</p>
+                </div>
+                <div class="field">
+                    <label class="label">역할</label>
+                    <span class="chip {% if user.role == 'ADMIN' %}warn{% else %}{% endif %}">{{ user.role }}</span>
+                </div>
+            </div>
+            
+            <div>
+                <h4>계정 상태</h4>
+                <div class="stat">
+                    <div>
+                        <div class="k">계정 활성화</div>
+                        <div class="v {% if user.is_active %}up{% else %}warn{% endif %}">
+                            {% if user.is_active %}활성{% else %}비활성{% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="stat">
+                    <div>
+                        <div class="k">관리자 권한</div>
+                        <div class="v {% if user.is_staff %}warn{% else %}{% endif %}">
+                            {% if user.is_staff %}있음{% else %}없음{% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="stat">
+                    <div>
+                        <div class="k">슈퍼사용자</div>
+                        <div class="v {% if user.is_superuser %}warn{% else %}{% endif %}">
+                            {% if user.is_superuser %}예{% else %}아니오{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if user.subscriptions.all %}
+        <div style="margin-top: 24px;">
+            <h4>구독 현황</h4>
+            <div class="grid-2" style="gap: 16px;">
+                {% for subscription in user.subscriptions.all %}
+                <div class="card">
+                    <div class="card__head">
+                        <h5>{{ subscription.plan.name }}</h5>
+                        <span class="chip {% if subscription.status == 'active' %}up{% else %}warn{% endif %}">{{ subscription.status }}</span>
+                    </div>
+                    <div class="grid-2" style="margin-top: 8px;">
+                        <div class="kpi">
+                            <div class="t">요금</div>
+                            <div class="v">{{ subscription.plan.price|floatformat:0 }}원</div>
+                        </div>
+                        <div class="kpi">
+                            <div class="t">주기</div>
+                            <div class="v">{{ subscription.plan.billing_cycle }}</div>
+                        </div>
+                    </div>
+                    <div class="field" style="margin-top: 8px;">
+                        <small class="muted">시작일: {{ subscription.start_date|date:"Y-m-d" }}</small>
+                        {% if subscription.end_date %}
+                        <br><small class="muted">종료일: {{ subscription.end_date|date:"Y-m-d" }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <div style="margin-top: 24px;">
+            <h4>권한 정보</h4>
+            <div class="grid-3">
+                <div class="card">
+                    <h5>기본 권한</h5>
+                    <ul style="margin-top: 8px; padding-left: 16px;">
+                        <li>로그인</li>
+                        <li>프로필 수정</li>
+                        <li>구독 관리</li>
+                    </ul>
+                </div>
+                {% if user.is_staff %}
+                <div class="card">
+                    <h5>관리자 권한</h5>
+                    <ul style="margin-top: 8px; padding-left: 16px;">
+                        <li>관리자 페이지 접근</li>
+                        <li>사용자 관리</li>
+                        <li>데이터 관리</li>
+                    </ul>
+                </div>
+                {% endif %}
+                {% if user.is_superuser %}
+                <div class="card">
+                    <h5>슈퍼사용자 권한</h5>
+                    <ul style="margin-top: 8px; padding-left: 16px;">
+                        <li>모든 권한</li>
+                        <li>시스템 설정</li>
+                        <li>권한 부여</li>
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

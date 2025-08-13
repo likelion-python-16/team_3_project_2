@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}청구서 현황{% endblock %}
+
+{% block content %}
+<div class="container main">
+    <div class="card">
+        <div class="card__head">
+            <h3>청구서 현황 <span class="tag">전체 {{ invoices|length }}건</span></h3>
+        </div>
+        
+        {% if invoices %}
+            <div style="margin-top: 16px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <th style="padding: 12px; text-align: left;">청구서 ID</th>
+                            <th style="padding: 12px; text-align: left;">구독자</th>
+                            <th style="padding: 12px; text-align: center;">청구 기간</th>
+                            <th style="padding: 12px; text-align: right;">금액</th>
+                            <th style="padding: 12px; text-align: center;">상태</th>
+                            <th style="padding: 12px; text-align: center;">마감일</th>
+                            <th style="padding: 12px; text-align: center;">상세</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for invoice in invoices %}
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 12px;">#{{ invoice.invoice_id }}</td>
+                            <td style="padding: 12px;">
+                                <a href="{% url 'accounts-web:user_detail' invoice.subscription.owner.user_id %}">{{ invoice.subscription.owner.username }}</a>
+                            </td>
+                            <td style="padding: 12px; text-align: center;">
+                                {{ invoice.period_start|date:"m/d" }} - {{ invoice.period_end|date:"m/d" }}
+                            </td>
+                            <td style="padding: 12px; text-align: right;">{{ invoice.amount_due|floatformat:0 }} {{ invoice.currency }}</td>
+                            <td style="padding: 12px; text-align: center;">
+                                <span class="chip {% if invoice.status == 'paid' %}up{% elif invoice.status == 'issued' %}warn{% else %}{% endif %}">{{ invoice.status }}</span>
+                            </td>
+                            <td style="padding: 12px; text-align: center;">{{ invoice.due_date|date:"Y-m-d" }}</td>
+                            <td style="padding: 12px; text-align: center;">
+                                <a href="{% url 'billing-web:invoice_detail' invoice.invoice_id %}" class="btn btn--ghost">상세보기</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="grid-4 kpi-grid" style="margin-top: 24px;">
+                <div class="kpi">
+                    <div class="t">전체 청구서</div>
+                    <div class="v">{{ invoices|length }}건</div>
+                </div>
+                <div class="kpi">
+                    <div class="t">지불 완료</div>
+                    <div class="v up">{{ invoices|dictsort:"status"|length }}건</div>
+                </div>
+                <div class="kpi">
+                    <div class="t">미지불</div>
+                    <div class="v warn">계산중</div>
+                </div>
+                <div class="kpi">
+                    <div class="t">총 청구 금액</div>
+                    <div class="v">계산중</div>
+                </div>
+            </div>
+        {% else %}
+            <div class="panel panel--notice">
+                <span>청구서가 없습니다.</span>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
