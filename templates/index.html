@@ -172,23 +172,33 @@
       <div class="field">
         <label class="label">업종 대분류</label>
         <select id="selMajor">
-          <option value="전체">전체</option>
-          <option value="외식">외식</option>
-          <option value="서비스">서비스</option>
-          <option value="소매">소매</option>
+          <option value="franchise">프랜차이즈</option>
+          <option value="individual">개인 카페</option>
         </select>
       </div>
 
       <div class="field">
         <label class="label">업종 중분류</label>
         <select id="selMid">
-          <option value="전체">전체</option>
-          <option value="카페">카페</option>
-          <option value="디저트">디저트</option>
-          <option value="베이커리">베이커리</option>
-          <option value="아이스크림">아이스크림</option>
+          <option value="전체">스타벅스</option>
+          <option value="카페">투썸</option>
+          <option value="디저트">할리스</option>
+          <option value="베이커리">메가 커피</option>
+          <option value="아이스크림">컴포즈 커피</option>
         </select>
       </div>
+      
+      {% for c in cafes %}
+      <tr>
+        <td>{{ c.cafe_id }}</td>
+        <td>{{ c.name }}</td>
+        <td>{{ c.address }}</td>
+        <td>{{ c.latitude }}</td>
+        <td>{{ c.longitude }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5">No data</td></tr>
+      {% endfor %}
 
       <div class="field">
         <label class="label">인기 프랜차이즈 선택</label>

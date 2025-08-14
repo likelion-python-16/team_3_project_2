@@ -29,7 +29,7 @@ class CafeIdViewSet(viewsets.ModelViewSet):
     def template_list(self, request):
         cafes = self.get_queryset()
         context = {'cafes': cafes}
-        return render(request, 'cafes/cafe_list.html', context)
+        return render(request, 'index.html', context)
     
     @action(detail=True, methods=['get'])
     def template_detail(self, request, pk=None):
