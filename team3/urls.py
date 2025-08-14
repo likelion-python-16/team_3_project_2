@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-from accounts.views import login_page
+from accounts.views import login_page, register_page
 from cafes.views import CafeIdViewSet
 
 urlpatterns = [
     path("", include(('cafes.urls', 'cafes'), namespace='cafes-web')),
     path("login/", login_page, name="login"),
+    path("register/", register_page, name="register"),
     path('admin/', admin.site.urls),
     
     

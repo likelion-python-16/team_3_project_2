@@ -149,6 +149,10 @@
         
         <div id="loginStatus"></div>
       </form>
+
+      <div class="back-link">
+        <a href="{% url 'register' %}">계정이 없으신가요? 회원가입</a>
+      </div>
       
       <div class="back-link">
         <a href="/">← 메인 페이지로 돌아가기</a>
@@ -185,10 +189,13 @@
           btnLogin.textContent = '로그인 중...';
           statusEl.textContent = '';
           
+          const csrftoken = this.getCookie('csrftoken');
+
           const response = await fetch('/api/accounts/users/login/', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'X-CSRFToken': csrftoken
             },
             body: JSON.stringify({ email, password })
           });
@@ -196,9 +203,6 @@
           const data = await response.json();
           
           if (data.success) {
-            // 토큰 저장
-            localStorage.setItem('auth_token', data.token);
-            
             this.showStatus('로그인 성공! 메인 페이지로 이동합니다...', 'success');
             
             setTimeout(() => {
@@ -222,6 +226,21 @@
         const statusEl = document.getElementById('loginStatus');
         statusEl.textContent = message;
         statusEl.className = `login-status ${type}`;
+      }
+
+      getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
       }
     }
     

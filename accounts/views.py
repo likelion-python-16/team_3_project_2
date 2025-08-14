@@ -1,16 +1,19 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
-from django.shortcuts import render
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from .models import User
-from .serializers import UserSerializer
+from .serializers import UserSerializer, RegistrationSerializer
 
 def login_page(request):
     """로그인 페이지 렌더링"""
     return render(request, 'login.html')
+
+def register_page(request):
+    """회원가입 페이지 렌더링"""
+    return render(request, 'register.html')
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by("-user_id")
@@ -31,68 +34,39 @@ class UserViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
     def login(self, request):
-        """사용자 로그인 API"""
+        """사용자 로그인 API (세션 기반)"""
         email = request.data.get('email')
         password = request.data.get('password')
-        
+
         if not email or not password:
-            return Response({
-                'success': False,
-                'message': '이메일과 비밀번호를 입력해주세요.'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            user = User.objects.get(email=email)
-            if user.check_password(password):
-                if not user.is_active:
-                    return Response({
-                        'success': False,
-                        'message': '비활성화된 계정입니다.'
-                    }, status=status.HTTP_400_BAD_REQUEST)
-                
-                # 토큰 생성 또는 가져오기
-                token, created = Token.objects.get_or_create(user=user)
-                
-                return Response({
-                    'success': True,
-                    'message': '로그인 성공',
-                    'token': token.key,
-                    'user': {
-                        'id': user.user_id,
-                        'username': user.username,
-                        'email': user.email,
-                        'role': user.role,
-                        'is_staff': user.is_staff
-                    }
-                }, status=status.HTTP_200_OK)
+            return Response({'success': False, 'message': '이메일과 비밀번호를 모두 입력해주세요.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = authenticate(request, email=email, password=password)
+
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return Response({'success': True, 'message': '로그인 성공'})
             else:
-                return Response({
-                    'success': False,
-                    'message': '잘못된 비밀번호입니다.'
-                }, status=status.HTTP_400_BAD_REQUEST)
-                
-        except User.DoesNotExist:
-            return Response({
-                'success': False,
-                'message': '존재하지 않는 사용자입니다.'
-            }, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'success': False, 'message': '비활성화된 계정입니다.'}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({'success': False, 'message': '이메일 또는 비밀번호가 올바르지 않습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
+    def register(self, request):
+        """사용자 회원가입 API"""
+        serializer = RegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            login(request, user)
+            return Response({'success': True, 'message': '회원가입이 완료되었습니다. 자동으로 로그인됩니다.'}, status=status.HTTP_201_CREATED)
+        return Response({'success': False, 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def logout(self, request):
-        """사용자 로그아웃 API"""
-        try:
-            # 토큰 삭제
-            token = Token.objects.get(user=request.user)
-            token.delete()
-            return Response({
-                'success': True,
-                'message': '로그아웃되었습니다.'
-            }, status=status.HTTP_200_OK)
-        except Token.DoesNotExist:
-            return Response({
-                'success': True,
-                'message': '로그아웃되었습니다.'
-            }, status=status.HTTP_200_OK)
+        """사용자 로그아웃 API (세션 기반)"""
+        logout(request)
+        return redirect('/')
     
     @action(detail=False, methods=['get'])
     def me(self, request):

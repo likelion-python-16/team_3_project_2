@@ -1,0 +1,28 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>트렌드 분석</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  <div class="card tab-pane" id="pane-trend">
+    <h3>마포구 트렌드 분석</h3>
+    <div class="grid-4 kpi-grid">
+      <div class="kpi"><div class="t">3년 성장률</div><div class="v up">+97.5%</div><div class="s">2019 대비</div></div>
+      <div class="kpi"><div class="t">신규 사업자</div><div class="v up">+62</div><div class="s">지난 12개월</div></div>
+      <div class="kpi"><div class="t">평균 생존율</div><div class="v">73.5%</div></div>
+      <div class="kpi"><div class="t">월 평균 매출 지수</div><div class="v">112</div><div class="s">기준=100</div></div>
+    </div>
+
+    <div class="bars">
+      <div class="row"><div class="brand">비건 &amp; 플로럴</div><div class="bar"><span style="width:80%"></span></div><div class="bar-meta">+230% · 18개</div></div>
+      <div class="row"><div class="brand">무인 매장</div><div class="bar"><span style="width:65%"></span></div><div class="bar-meta">+125% · 12개</div></div>
+      <div class="row"><div class="brand">갓성비 디저트</div><div class="bar"><span style="width:50%"></span></div><div class="bar-meta">+180% · 23개</div></div>
+      <div class="row"><div class="brand">온라인 픽업</div><div class="bar"><span style="width:55%"></span></div><div class="bar-meta">+95% · 31개</div></div>
+    </div>
+  </div>
+</body>
+</html>

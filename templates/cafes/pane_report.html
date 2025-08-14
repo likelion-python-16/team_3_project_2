@@ -1,0 +1,25 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>보고서</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  <div class="card tab-pane" id="pane-report">
+    <h3>보고서 생성</h3>
+    <div class="grid-4 kpi-grid">
+      <div class="kpi"><div class="t">상권 현황</div><div class="v">요약 보고서</div></div>
+      <div class="kpi"><div class="t">카테고리</div><div class="v">브랜드 비교</div></div>
+      <div class="kpi"><div class="t">트렌드</div><div class="v">핵심 이슈</div></div>
+      <div class="kpi"><div class="t">정책 제언</div><div class="v">PDF 출력</div></div>
+    </div>
+    <div class="panel">
+      <p class="muted">보고서 생성 기능을 사용하실 수 있습니다.</p>
+      <button class="btn btn--primary">보고서 생성</button>
+    </div>
+  </div>
+</body>
+</html>

@@ -153,3 +153,16 @@ class CafeTrendAIViewSet(viewsets.ModelViewSet):
         trends = self.get_queryset()
         context = {'trends': trends}
         return render(request, 'cafes/cafe_trend_list.html', context)
+
+
+def pane_map_view(request):
+    return render(request, 'cafes/pane_map.html')
+
+def pane_franchise_view(request):
+    return render(request, 'cafes/pane_franchise.html')
+
+def pane_trend_view(request):
+    return render(request, 'cafes/pane_trend.html')
+
+def pane_report_view(request):
+    return render(request, 'cafes/pane_report.html')
