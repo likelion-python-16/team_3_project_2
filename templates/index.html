@@ -169,17 +169,17 @@
       <div class="field">
         <label class="label">지역 선택</label>
         <select id="selRegion">
-          <option value="마포구">마포구</option>
-          <option value="송파구">송파구</option>
-          <option value="광진구">광진구</option>
-          <option value="강남구">강남구</option>
-          <option value="서초구">서초구</option>
+          <option value="seoul_all">서울시 전체</option>
+          {% for c in cafes %}
+           <option value="{{ c.id }}">{{ c.address }}</option>
+          {% endfor %}
         </select>
       </div>
 
       <div class="field">
         <label class="label">업종 대분류</label>
         <select id="selMajor">
+          <option value="type_all">전체 업종</option>
           <option value="franchise">프랜차이즈</option>
           <option value="individual">개인 카페</option>
         </select>
@@ -188,26 +188,14 @@
       <div class="field">
         <label class="label">업종 중분류</label>
         <select id="selMid">
-          <option value="전체">스타벅스</option>
-          <option value="카페">투썸</option>
-          <option value="디저트">할리스</option>
-          <option value="베이커리">메가 커피</option>
-          <option value="아이스크림">컴포즈 커피</option>
+          <option value="all">전체</option>
+          {% for c in cafes %}
+           <option value="{{ c.id }}">{{ c.franchise_type }}</option>
+          {% endfor %}          
         </select>
       </div>
       
-      {% for c in cafes %}
-      <tr>
-        <td>{{ c.cafe_id }}</td>
-        <td>{{ c.name }}</td>
-        <td>{{ c.address }}</td>
-        <td>{{ c.latitude }}</td>
-        <td>{{ c.longitude }}</td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="5">No data</td></tr>
-      {% endfor %}
-
+      <!-- 인기 프랜차이즈 선택  -->
       <div class="field">
         <label class="label">인기 프랜차이즈 선택</label>
         <div class="chip-row">

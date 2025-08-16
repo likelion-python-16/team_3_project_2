@@ -10,7 +10,7 @@
 <body>
   <div class="card tab-pane" id="pane-map" style="position: relative;">
     <div class="card__head">
-      <h3>마포구 상권 지도 <span class="tag">전체 업종 분석 결과</span></h3>
+      <h3>카페 상권 지도 <span class="tag">카페 업종 분석 결과</span></h3>
       <div class="legend">
         <span class="dot g"></span><small class="muted">안정</small>
         <span class="dot y"></span><small class="muted">주의</small>
@@ -19,16 +19,27 @@
     </div>
     <div id="map" class="map"></div>
     <div class="grid-4 kpi-grid">
-      <div class="kpi"><div class="t">표시된 상권 수</div><div class="v" id="k_cnt">5</div></div>
-      <div class="kpi"><div class="t">전체 사업자</div><div class="v">775</div></div>
-      <div class="kpi"><div class="t">평균 성장률</div><div class="v up">+7.9%</div><div class="s">Weighted avg</div></div>
+      <div class="kpi"><div class="t">표시된 상권 수</div><div class="v" id="k_cnt">{{ total_count }}</div></div>
+      <div class="kpi"><div class="t">전체 사업자</div><div class="v">{{ total_count }}</div></div>
+      <div class="kpi"><div class="t">평균 성장률</div><div class="v up">+7.9%</div><div class="s">선택한 지역 평균</div></div>
       <div class="kpi"><div class="t">위험 지역</div><div class="v warn">1</div></div>
     </div>
   </div>
 </body>
   <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=dd7894cd5f31c782972ae169dec652f6"></script>
   <script type="text/javascript">
-	
+    // URL 파라미터에서 지역 정보 읽기
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedRegion = urlParams.get('region') || '서울시 전체';
+    
+    // 페이지 로드 시 제목 업데이트
+    document.addEventListener('DOMContentLoaded', () => {
+      const cardHeadTitle = document.querySelector('.card__head h3');
+      if (cardHeadTitle) {
+        cardHeadTitle.innerHTML = `${selectedRegion} 상권 지도 <span class="tag">카페 업종 분석 결과</span>`;
+      }
+    });
+
     var container = document.getElementById('map'); //지도를 담을 영역의 DOM 레퍼런스
     var options = { //지도를 생성할 때 필요한 기본 옵션
       center: new kakao.maps.LatLng(33.450701, 126.570667), //지도의 중심좌표.

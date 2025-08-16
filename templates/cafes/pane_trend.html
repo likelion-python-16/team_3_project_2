@@ -9,20 +9,38 @@
 </head>
 <body>
   <div class="card tab-pane" id="pane-trend">
-    <h3>마포구 트렌드 분석</h3>
+    <h3 id="trend-title">{{ selected_region }} 트렌드 분석</h3>
     <div class="grid-4 kpi-grid">
-      <div class="kpi"><div class="t">3년 성장률</div><div class="v up">+97.5%</div><div class="s">2019 대비</div></div>
-      <div class="kpi"><div class="t">신규 사업자</div><div class="v up">+62</div><div class="s">지난 12개월</div></div>
-      <div class="kpi"><div class="t">평균 생존율</div><div class="v">73.5%</div></div>
-      <div class="kpi"><div class="t">월 평균 매출 지수</div><div class="v">112</div><div class="s">기준=100</div></div>
+      <div class="kpi"><div class="t">3년 성장률</div><div class="v up">+{{ three_year_growth }}%</div><div class="s">예측 기반</div></div>
+      <div class="kpi"><div class="t">신규 사업자</div><div class="v up">+{{ new_businesses }}</div><div class="s">성장 기대 지역</div></div>
+      <div class="kpi"><div class="t">평균 생존율</div><div class="v">{{ survival_rate }}%</div></div>
+      <div class="kpi"><div class="t">월 평균 매출 지수</div><div class="v">{{ sales_index }}</div><div class="s">기준=100</div></div>
     </div>
 
     <div class="bars">
-      <div class="row"><div class="brand">비건 &amp; 플로럴</div><div class="bar"><span style="width:80%"></span></div><div class="bar-meta">+230% · 18개</div></div>
-      <div class="row"><div class="brand">무인 매장</div><div class="bar"><span style="width:65%"></span></div><div class="bar-meta">+125% · 12개</div></div>
-      <div class="row"><div class="brand">갓성비 디저트</div><div class="bar"><span style="width:50%"></span></div><div class="bar-meta">+180% · 23개</div></div>
-      <div class="row"><div class="brand">온라인 픽업</div><div class="bar"><span style="width:55%"></span></div><div class="bar-meta">+95% · 31개</div></div>
+      {% for category in trend_categories %}
+      <div class="row">
+        <div class="brand">{{ category.name }}</div>
+        <div class="bar"><span style="width:{% widthratio category.growth_rate 200 100 %}%"></span></div>
+        <div class="bar-meta">+{{ category.growth_rate }}% · {{ category.count }}개</div>
+      </div>
+      {% empty %}
+      <div class="row"><div class="brand">필터 조건에 맞는 트렌드가 없습니다</div></div>
+      {% endfor %}
     </div>
   </div>
 </body>
+<script type="text/javascript">
+  // URL 파라미터에서 지역 정보 읽기
+  const urlParams = new URLSearchParams(window.location.search);
+  const selectedRegion = urlParams.get('region') || '서울시 전체';
+  
+  // 페이지 로드 시 제목 업데이트
+  document.addEventListener('DOMContentLoaded', () => {
+    const trendTitle = document.getElementById('trend-title');
+    if (trendTitle) {
+      trendTitle.innerHTML = `${selectedRegion} 트렌드 분석`;
+    }
+  });
+</script>
 </html>

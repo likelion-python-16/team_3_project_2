@@ -16,8 +16,8 @@ class CafeId(models.Model):
     cafe_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=140)
     address = models.CharField(max_length=255)    
-    # franchise = models.BooleanField(default=False)
-    # franchise_type = models.CharField(max_length=50, blank=True)
+    franchise = models.BooleanField(default=False)
+    franchise_type = models.CharField(max_length=50, blank=True)
     #구
     biz_code = models.CharField(max_length=50, blank=True)
     

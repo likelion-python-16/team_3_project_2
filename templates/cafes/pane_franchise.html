@@ -9,29 +9,49 @@
 </head>
 <body>
   <div class="card tab-pane" id="pane-franchise">
-    <h3>마포구 프랜차이즈별 분석</h3>
+    <h3 id="franchise-title">{{ selected_region }} 프랜차이즈별 분석</h3>
     <div class="grid-4 kpi-grid">
-      <div class="kpi"><div class="t">카페 수</div><div class="v">8</div><div class="s">↑ from last month</div></div>
-      <div class="kpi"><div class="t">사업자 수</div><div class="v">391</div><div class="s">-12% MoM</div></div>
-      <div class="kpi"><div class="t">매출액</div><div class="v">4.8억원</div><div class="s">+5% MoM</div></div>
+      <div class="kpi"><div class="t">카페 수</div><div class="v">{{ total_count }}</div><div class="s">필터링된 결과</div></div>
+      <div class="kpi"><div class="t">프랜차이즈</div><div class="v">{{ franchise_count }}</div><div class="s">프랜차이즈 카페 {{ individual_count }}개</div></div>
+      <div class="kpi"><div class="t">매출액</div><div class="v">{{ total_sales }}만원</div><div class="s">추정 매출</div></div>
       <div class="kpi"><div class="t">평균 성장률</div><div class="v up">+13.1%</div></div>
     </div>
 
     <div class="bars">
-      <div class="row"><div class="brand">투썸플레이스</div><div class="bar"><span style="width:68%"></span></div><div class="bar-meta">월평균 8,500만 · 10.7%</div></div>
-      <div class="row"><div class="brand">스타벅스</div><div class="bar"><span style="width:100%"></span></div><div class="bar-meta">월평균 1억2,500만 · 9.7%</div></div>
-      <div class="row"><div class="brand">메가커피</div><div class="bar"><span style="width:36%"></span></div><div class="bar-meta">월평균 4,500만 · 17.1%</div></div>
-      <div class="row"><div class="brand">빽다방</div><div class="bar"><span style="width:42%"></span></div><div class="bar-meta">월평균 5,200만 · 22.8%</div></div>
+      {% for stat in franchise_stats %}
+        {% if stat.franchise_type %}
+        <div class="row">
+          <div class="brand">{{ stat.franchise_type }}</div>
+          <div class="bar"><span style="width:{% widthratio stat.count franchise_stats.0.count 100 %}%"></span></div>
+          <div class="bar-meta">{{ stat.count }}개 매장 · 추정 {{ stat.estimated_sales }}만원</div>
+        </div>
+        {% endif %}
+      {% empty %}
+        <div class="row"><div class="brand">필터 조건에 맞는 프랜차이즈가 없습니다</div></div>
+      {% endfor %}
     </div>
 
     <div class="card" style="margin-top:12px">
       <h3>위험도 분석</h3>
       <div class="risk-grid">
-        <div class="risk ok"><div class="n">5</div><div class="muted">안정 프랜차이즈</div></div>
-        <div class="risk warn"><div class="n">2</div><div class="muted">주의 프랜차이즈</div></div>
-        <div class="risk bad"><div class="n">1</div><div class="muted">위험 프랜차이즈</div></div>
+        <div class="risk ok"><div class="n">{{ safe_franchises }}</div><div class="muted">안정 프랜차이즈</div></div>
+        <div class="risk warn"><div class="n">{{ warning_franchises }}</div><div class="muted">주의 프랜차이즈</div></div>
+        <div class="risk bad"><div class="n">{{ risk_franchises }}</div><div class="muted">위험 프랜차이즈</div></div>
       </div>
     </div>
   </div>
 </body>
+<script type="text/javascript">
+  // URL 파라미터에서 지역 정보 읽기
+  const urlParams = new URLSearchParams(window.location.search);
+  const selectedRegion = urlParams.get('region') || '서울시 전체';
+  
+  // 페이지 로드 시 제목 업데이트
+  document.addEventListener('DOMContentLoaded', () => {
+    const franchiseTitle = document.getElementById('franchise-title');
+    if (franchiseTitle) {
+      franchiseTitle.innerHTML = `${selectedRegion} 프랜차이즈별 분석`;
+    }
+  });
+</script>
 </html>

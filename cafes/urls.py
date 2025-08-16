@@ -19,11 +19,12 @@ router.register(r"trends", CafeTrendAIViewSet, basename="cafe-trend")
 # Manual URL patterns for simpler template access
 template_patterns = [
     path('', CafeIdViewSet.as_view({'get': 'template_list'}), name='cafe_list'),
-    path('cafe/<int:pk>/', CafeIdViewSet.as_view({'get': 'template_detail'}), name='cafe_detail'),
-    path('sales/', CafeSalesViewSet.as_view({'get': 'template_list'}), name='cafe_sales_list'),
-    path('reviews/', CafeReviewViewSet.as_view({'get': 'template_list'}), name='cafe_review_list'),
-    path('populations/', ResidentPopulationViewSet.as_view({'get': 'template_list'}), name='resident_population_list'),
-    path('trends/', CafeTrendAIViewSet.as_view({'get': 'template_list'}), name='cafe_trend_list'),
+    
+    # path('cafe/<int:pk>/', CafeIdViewSet.as_view({'get': 'template_detail'}), name='cafe_detail'),
+    # path('sales/', CafeSalesViewSet.as_view({'get': 'template_list'}), name='cafe_sales_list'),
+    # path('reviews/', CafeReviewViewSet.as_view({'get': 'template_list'}), name='cafe_review_list'),
+    # path('populations/', ResidentPopulationViewSet.as_view({'get': 'template_list'}), name='resident_population_list'),
+    # path('trends/', CafeTrendAIViewSet.as_view({'get': 'template_list'}), name='cafe_trend_list'),
     # URLs for iframe panes
     path('pane/map/', pane_map_view, name='pane_map'),
     path('pane/franchise/', pane_franchise_view, name='pane_franchise'),
