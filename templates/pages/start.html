@@ -1,0 +1,299 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>무료로 시작하기 - 골목상권 빅데이터 분석</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <style>
+    .start-hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 60px 0;
+      text-align: center;
+    }
+    
+    .plan-card {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+    
+    .plan-card.recommended {
+      border-color: #3b82f6;
+      transform: scale(1.05);
+    }
+    
+    .plan-card h3 {
+      margin: 0 0 16px 0;
+      font-size: 24px;
+    }
+    
+    .plan-price {
+      font-size: 36px;
+      font-weight: bold;
+      margin: 16px 0;
+    }
+    
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin: 24px 0;
+    }
+    
+    .plan-features li {
+      padding: 8px 0;
+      color: #64748b;
+    }
+    
+    .plan-features li::before {
+      content: "✓ ";
+      color: #10b981;
+      font-weight: bold;
+    }
+    
+    .signup-form {
+      max-width: 400px;
+      margin: 40px auto;
+      background: white;
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-field {
+      margin-bottom: 20px;
+    }
+    
+    .form-field label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #374151;
+    }
+    
+    .form-field input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    
+    .form-field input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .btn-primary {
+      width: 100%;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+    
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin: 40px 0;
+    }
+    
+    @media (max-width: 768px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      
+      .plan-card.recommended {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="container topbar__row">
+      <div class="logo">
+        <a href="/" style="text-decoration: none; color: inherit;">
+          <span>🧭</span>
+          <span class="logo__title">골목상권 빅데이터 분석</span>
+        </a>
+      </div>
+      <nav class="top-actions">
+        <a href="/login" class="btn btn--ghost">이미 계정이 있나요?</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="start-hero">
+    <div class="container">
+      <h1>무료로 시작하기</h1>
+      <p>지금 바로 골목상권 분석을 체험해보세요</p>
+    </div>
+  </section>
+
+  <!-- Plans -->
+  <section class="container" style="margin: 60px auto;">
+    <h2 style="text-align: center; margin-bottom: 40px;">요금제 선택</h2>
+    
+    <div class="grid-2">
+      <!-- 무료 플랜 -->
+      <div class="plan-card">
+        <h3>무료 플랜</h3>
+        <div class="plan-price">
+          ₩0
+          <span style="font-size: 16px; color: #64748b;">/월</span>
+        </div>
+        <ul class="plan-features">
+          <li>일일 분석 조회 10회</li>
+          <li>기본 상권 지도 분석</li>
+          <li>프랜차이즈 분석</li>
+          <li>트렌드 요약 보기</li>
+          <li>커뮤니티 지원</li>
+        </ul>
+        <button class="btn-primary" onclick="showSignupForm('free')">무료로 시작하기</button>
+      </div>
+
+      <!-- 프리미엄 플랜 -->
+      <div class="plan-card recommended">
+        <div style="background: #3b82f6; color: white; padding: 8px 16px; border-radius: 20px; display: inline-block; margin-bottom: 16px; font-size: 14px;">
+          추천
+        </div>
+        <h3>프리미엄 플랜</h3>
+        <div class="plan-price">
+          ₩9,500
+          <span style="font-size: 16px; color: #64748b;">/월</span>
+        </div>
+        <ul class="plan-features">
+          <li>무제한 분석 조회</li>
+          <li>상세 지역별 분석</li>
+          <li>매출 예측 분석</li>
+          <li>AI 투자 추천</li>
+          <li>위험도 분석</li>
+          <li>데이터 내보내기</li>
+          <li>우선 고객 지원</li>
+        </ul>
+        <button class="btn-primary" onclick="showSignupForm('premium')">프리미엄 시작하기</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Signup Form -->
+  <section class="container" id="signup-section" style="display: none;">
+    <div class="signup-form">
+      <h3 id="signup-title">계정 만들기</h3>
+      
+      <form id="signup-form">
+        {% csrf_token %}
+        <div class="form-field">
+          <label for="username">사용자명</label>
+          <input type="text" id="username" name="username" required>
+        </div>
+        
+        <div class="form-field">
+          <label for="email">이메일</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="form-field">
+          <label for="password">비밀번호</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        
+        <div class="form-field">
+          <label for="password_confirm">비밀번호 확인</label>
+          <input type="password" id="password_confirm" name="password_confirm" required>
+        </div>
+        
+        <button type="submit" class="btn-primary" id="signup-btn">
+          계정 만들기
+        </button>
+      </form>
+      
+      <div style="text-align: center; margin-top: 20px; color: #64748b;">
+        이미 계정이 있으신가요? <a href="/login" style="color: #3b82f6;">로그인</a>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    let selectedPlan = 'free';
+    
+    function showSignupForm(plan) {
+      selectedPlan = plan;
+      document.getElementById('signup-section').style.display = 'block';
+      document.getElementById('signup-section').scrollIntoView({ behavior: 'smooth' });
+      
+      const title = document.getElementById('signup-title');
+      const btn = document.getElementById('signup-btn');
+      
+      if (plan === 'premium') {
+        title.textContent = '프리미엄 계정 만들기';
+        btn.textContent = '계정 만들고 결제하기';
+      } else {
+        title.textContent = '무료 계정 만들기';
+        btn.textContent = '무료로 시작하기';
+      }
+    }
+    
+    document.getElementById('signup-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const password = formData.get('password');
+      const passwordConfirm = formData.get('password_confirm');
+      
+      if (password !== passwordConfirm) {
+        alert('비밀번호가 일치하지 않습니다.');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/accounts/users/register/', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          alert('계정이 성공적으로 생성되었습니다!');
+          
+          if (selectedPlan === 'premium') {
+            // 프리미엄 플랜이면 결제 페이지로 이동
+            window.location.href = '/payment/?plan=premium';
+          } else {
+            // 무료 플랜이면 바로 로그인 후 메인 페이지로
+            window.location.href = '/login/?next=/&message=signup_success';
+          }
+        } else {
+          alert(data.message || '계정 생성에 실패했습니다.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('서버 오류가 발생했습니다.');
+      }
+    });
+  </script>
+</body>
+</html>

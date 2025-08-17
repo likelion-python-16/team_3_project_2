@@ -27,8 +27,39 @@ class CafeIdViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def template_list(self, request):
+        from django.db.models import Count, Avg, Q
+        from datetime import datetime, timedelta
+        
         cafes = self.get_queryset()
-        context = {'cafes': cafes}
+        # 프랜차이즈가 True인 franchise_type을 중복 제거하고 4개만 가져오기
+        franchise_types = CafeId.objects.filter(
+            franchise=True, 
+            franchise_type__isnull=False
+        ).exclude(franchise_type='').values_list('franchise_type', flat=True).distinct()[:4]
+        
+        # 주요 지표 계산
+        # 1. 총 상가수 (전체 카페 수)
+        total_stores = CafeId.objects.count()
+        
+        # 2. 매출 증가율 (트렌드 데이터 기반)
+        trends = CafeTrendAI.objects.all()
+        avg_growth_rate = trends.aggregate(avg_growth=Avg('predicted_growth_rate'))['avg_growth'] or 0
+        growth_rate_formatted = f"+{avg_growth_rate:.1f}%" if avg_growth_rate > 0 else f"{avg_growth_rate:.1f}%"
+        
+        # 3. 위험 지역 (is_risk_area가 True인 지역 수)
+        risk_areas_count = trends.filter(is_risk_area=True).count()
+        
+        # 4. 신규 창업 (investment_opportunity가 True인 지역 수를 신규 창업 지표로 활용)
+        new_businesses = trends.filter(investment_opportunity=True).count()
+        
+        context = {
+            'cafes': cafes,
+            'franchise_types': franchise_types,
+            'total_stores': total_stores,
+            'growth_rate': growth_rate_formatted,
+            'risk_areas_count': risk_areas_count,
+            'new_businesses': new_businesses,
+        }
         return render(request, 'index.html', context)
     
     @action(detail=True, methods=['get'])

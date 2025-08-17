@@ -107,4 +107,102 @@ document.addEventListener('DOMContentLoaded', () => {
     if (selMid) {
         selMid.addEventListener('change', updateCurrentPane);
     }
+    
+    // 프랜차이즈 칩 클릭 이벤트 추가
+    const franchiseChips = document.querySelectorAll('.chip');
+    franchiseChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            const franchiseType = chip.textContent.trim();
+            window.location.href = `/summary/?franchise_type=${encodeURIComponent(franchiseType)}`;
+        });
+    });
+    
+    // 페이지 버튼 이벤트 리스너
+    const btnStart = document.getElementById('btnStart');
+    const btnTry = document.getElementById('btnTry');
+    const btnMyAccount = document.getElementById('btnMyAccount');
+    const btnPricing = document.getElementById('btnPricing');
+    
+    if (btnStart) {
+        btnStart.addEventListener('click', () => {
+            window.location.href = '/start/';
+        });
+    }
+    
+    if (btnTry) {
+        btnTry.addEventListener('click', () => {
+            window.location.href = '/summary/';
+        });
+    }
+    
+    if (btnMyAccount) {
+        btnMyAccount.addEventListener('click', () => {
+            window.location.href = '/account/';
+        });
+    }
+    
+    if (btnPricing) {
+        btnPricing.addEventListener('click', () => {
+            // 회원가입 페이지로 이동
+            window.location.href = '/register/';
+        });
+    }
 });
+
+// 요금제 모달 표시
+function showPricingModal() {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: white; border-radius: 12px; padding: 32px; max-width: 1000px; margin: 20px;">
+            <h3 style="margin: 0 0 24px 0;">💎 요금제 안내</h3>
+            
+            <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 16px;">
+                <h4 style="margin: 0 0 12px 0; color: #6b7280;">무료 플랜</h4>
+                <div style="font-size: 24px; font-weight: bold; margin-bottom: 12px;">₩0 <span style="font-size: 14px; color: #6b7280;">/월</span></div>
+                <ul style="margin: 0; padding-left: 20px; color: #374151;">
+                    <li>일일 분석 조회 10회</li>
+                    <li>기본 상권 분석</li>
+                    <li>커뮤니티 지원</li>
+                </ul>
+            </div>
+            
+            <div style="border: 2px solid #3b82f6; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                <h4 style="margin: 0 0 12px 0; color: #3b82f6;">프리미엄 플랜 ⭐</h4>
+                <div style="font-size: 24px; font-weight: bold; margin-bottom: 12px; color: #3b82f6;">₩9,500 <span style="font-size: 14px; color: #6b7280;">/월</span></div>
+                <ul style="margin: 0; padding-left: 20px; color: #374151;">
+                    <li>무제한 분석 조회</li>
+                    <li>상세 지역별 분석</li>
+                    <li>AI 투자 추천</li>
+                    <li>데이터 내보내기</li>
+                    <li>우선 고객 지원</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center;">
+                <button onclick="window.location.href='/start/'" style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; margin-right: 12px; cursor: pointer;">시작하기</button>
+                <button onclick="this.closest('[style*=fixed]').remove()" style="background: #6b7280; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer;">닫기</button>
+            </div>
+        </div>
+    `;
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+    
+    document.body.appendChild(modal);
+}

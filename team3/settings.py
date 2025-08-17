@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "accounts",
     "billing",
-    "cafes",    
+    "cafes",
+    "payments",
 ]
 
 MIDDLEWARE = [

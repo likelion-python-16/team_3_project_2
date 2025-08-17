@@ -122,7 +122,7 @@
         {% else %}
           <!-- 로그아웃 상태 -->
           <div id="nav-logged-out">
-            <button class="btn btn--ghost" id="btnPricing">요금제 보기</button>
+            <button class="btn btn--ghost" id="btnPricing">회원가입</button>
             <a href="/login" class="btn btn--primary">로그인</a>
           </div>
         {% endif %}
@@ -138,7 +138,7 @@
         <p>빅데이터와 공공데이터를 활용하여 구·동 단위의 세밀한 상권 분석을 제공합니다.</p>
       </div>
       <div class="hero__cta">
-        <button class="pill" id="btnStart">무료로 시작하기</button>
+        <button class="pill" id="btnStart">요금제 보기</button>
         <button class="pill pill--light" id="btnTry">요약 피드 보기</button>
       </div>
     </div>
@@ -199,18 +199,17 @@
       <div class="field">
         <label class="label">인기 프랜차이즈 선택</label>
         <div class="chip-row">
-          <span class="chip">투썸플레이스</span>
-          <span class="chip">스타벅스</span>
-          <span class="chip">메가커피</span>
-          <span class="chip">빽다방</span>
+          {% for franchise_type in franchise_types %}
+            <span class="chip">{{ franchise_type }}</span>
+          {% endfor %}
         </div>
       </div>
 
       <h3 style="margin-top:18px">주요 지표</h3>
-      <div class="stat"><div><div class="k">총 상가수</div><div class="v" id="k_store">12,847</div></div></div>
-      <div class="stat"><div><div class="k">매출 증가율</div><div class="v up">+8.2%</div></div></div>
-      <div class="stat"><div><div class="k">위험 지역</div><div class="v warn">23곳</div></div></div>
-      <div class="stat"><div><div class="k">신규 창업</div><div class="v up">+156</div></div></div>
+      <div class="stat"><div><div class="k">총 상가수</div><div class="v" id="k_store">{{ total_stores|floatformat:0 }}</div></div></div>
+      <div class="stat"><div><div class="k">매출 증가율</div><div class="v up">{{ growth_rate }}</div></div></div>
+      <div class="stat"><div><div class="k">위험 지역</div><div class="v warn">{{ risk_areas_count }}곳</div></div></div>
+      <div class="stat"><div><div class="k">신규 창업</div><div class="v up">+{{ new_businesses }}</div></div></div>
 
       {% if user.is_authenticated %}
         <!-- 로그인 상태 정보 -->
@@ -240,7 +239,7 @@
 	
     var container = document.getElementById('map'); //지도를 담을 영역의 DOM 레퍼런스
     var options = { //지도를 생성할 때 필요한 기본 옵션
-      center: new kakao.maps.LatLng(33.450701, 126.570667), //지도의 중심좌표.
+      center: new kakao.maps.LatLng(37.4979, 127.0276), //지도의 중심좌표 (강남역)
       level: 3 //지도의 레벨(확대, 축소 정도)
     };
   

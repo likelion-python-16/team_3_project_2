@@ -1,0 +1,412 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>요약 피드 - 골목상권 빅데이터 분석</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <style>
+    .summary-hero {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      padding: 60px 0;
+      text-align: center;
+    }
+    
+    .feed-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid #3b82f6;
+    }
+    
+    .feed-card h3 {
+      margin: 0 0 12px 0;
+      color: #1f2937;
+    }
+    
+    .feed-meta {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    
+    .feed-content {
+      color: #374151;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    
+    .highlight-stat {
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .stat-label {
+      font-weight: 500;
+      color: #374151;
+    }
+    
+    .stat-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #059669;
+    }
+    
+    .stat-value.warning {
+      color: #d97706;
+    }
+    
+    .stat-value.danger {
+      color: #dc2626;
+    }
+    
+    .tag {
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-right: 8px;
+    }
+    
+    .cta-section {
+      background: #f9fafb;
+      padding: 40px;
+      border-radius: 12px;
+      text-align: center;
+      margin: 40px 0;
+    }
+    
+    .trending-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .trending-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .trending-list li:last-child {
+      border-bottom: none;
+    }
+    
+    .trend-up {
+      color: #059669;
+    }
+    
+    .trend-down {
+      color: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="container topbar__row">
+      <div class="logo">
+        <a href="/" style="text-decoration: none; color: inherit;">
+          <span>🧭</span>
+          <span class="logo__title">골목상권 빅데이터 분석</span>
+        </a>
+      </div>
+      <nav class="top-actions">
+        <a href="/start" class="btn btn--primary">무료로 시작하기</a>
+        <a href="/login" class="btn btn--ghost">로그인</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="summary-hero">
+    <div class="container">
+      <h1>📊 오늘의 상권 분석 요약</h1>
+      <p>최신 골목상권 트렌드와 인사이트를 한눈에 확인하세요</p>
+      <p style="font-size: 14px; opacity: 0.8;">{{ today|date:"Y년 m월 d일" }} 업데이트</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <div class="container" style="margin: 40px auto; max-width: 800px;">
+    
+    <!-- 주요 통계 -->
+    <div class="feed-card">
+      <h3>🎯 오늘의 주요 지표</h3>
+      <div class="feed-meta">전국 카페 상권 분석 결과</div>
+      
+      <div class="highlight-stat">
+        <span class="stat-label">전체 분석 카페 수</span>
+        <span class="stat-value">{{ total_cafes }}개</span>
+      </div>
+      
+      <div class="highlight-stat">
+        <span class="stat-label">이번 주 신규 창업</span>
+        <span class="stat-value">+{{ new_cafes }}개</span>
+      </div>
+      
+      <div class="highlight-stat">
+        <span class="stat-label">위험 지역</span>
+        <span class="stat-value danger">{{ risk_areas }}곳</span>
+      </div>
+      
+      <div class="highlight-stat">
+        <span class="stat-label">평균 성장률</span>
+        <span class="stat-value">+{{ avg_growth }}%</span>
+      </div>
+    </div>
+
+    <!-- 트렌드 분석 -->
+    <div class="feed-card">
+      <h3>📈 이번 주 핫 트렌드</h3>
+      <div class="feed-meta">AI 분석 기반 상권 트렌드</div>
+      
+      <div class="feed-content">
+        <span class="tag">트렌드</span>
+        <strong>무인 카페</strong>와 <strong>친환경 컨셉</strong> 카페가 급성장하고 있습니다. 
+        특히 강남, 홍대, 이태원 지역에서 두드러진 성장세를 보이고 있어요.
+      </div>
+      
+      <ul class="trending-list">
+        <li>
+          <span>무인 카페</span>
+          <span class="trend-up">↗ +127%</span>
+        </li>
+        <li>
+          <span>비건 디저트 카페</span>
+          <span class="trend-up">↗ +89%</span>
+        </li>
+        <li>
+          <span>반려동물 동반 카페</span>
+          <span class="trend-up">↗ +76%</span>
+        </li>
+        <li>
+          <span>전통 찻집</span>
+          <span class="trend-down">↘ -23%</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 지역별 분석 -->
+    <div class="feed-card">
+      <h3>📍 주요 지역 상권 현황</h3>
+      <div class="feed-meta">서울 주요 상권 분석</div>
+      
+      <div class="feed-content">
+        <div style="margin-bottom: 16px;">
+          <strong>🟢 성장 지역:</strong> 성수동, 연남동, 을지로가 높은 성장률을 기록했습니다.
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+          <strong>🟡 주의 지역:</strong> 명동, 인사동은 관광객 감소로 어려움을 겪고 있습니다.
+        </div>
+        
+        <div>
+          <strong>🔴 위험 지역:</strong> 일부 외곽 지역에서 폐업률이 증가하고 있어 주의가 필요합니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- AI 인사이트 -->
+    <div class="feed-card" style="position: relative; overflow: hidden;">
+      <h3>🤖 AI가 예측하는 다음 달 전망</h3>
+      <div class="feed-meta">머신러닝 기반 예측 분석</div>
+      
+      {% if is_authenticated and has_premium_access %}
+        <div class="feed-content">
+          다음 달 카페 창업 성공률은 <strong>73.2%</strong>로 예측됩니다. 
+          특히 <strong>브런치 카페</strong>와 <strong>로스터리 카페</strong> 업종에서 
+          높은 성공 가능성을 보이고 있습니다.
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">추천 창업 지역</span>
+          <span class="stat-value">성수동, 연남동</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">피해야 할 업종</span>
+          <span class="stat-value warning">전통 찻집, 인터넷 카페</span>
+        </div>
+      {% else %}
+        <div class="feed-content" style="filter: blur(95px);">
+          다음 달 카페 창업 성공률은 <strong>73.2%</strong>로 예측됩니다. 
+          특히 <strong>브런치 카페</strong>와 <strong>로스터리 카페</strong> 업종에서 
+          높은 성공 가능성을 보이고 있습니다.
+        </div>
+        
+        <div style="filter: blur(95px);">
+          <div class="highlight-stat">
+            <span class="stat-label">추천 창업 지역</span>
+            <span class="stat-value">성수동, 연남동</span>
+          </div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">피해야 할 업종</span>
+            <span class="stat-value warning">전통 찻집, 인터넷 카페</span>
+          </div>
+        </div>
+        
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 8px;">
+          {% if not is_authenticated %}
+            <p style="margin: 0; font-weight: 500;">로그인 후 이용하세요</p>
+            <a href="/login" class="btn btn--primary" style="margin-top: 8px; font-size: 14px;">로그인</a>
+          {% else %}
+            <p style="margin: 0 0 10px 0; font-weight: 500;">프리미엄 플랜에서 확인하세요</p>
+            <a href="/start" class="btn btn--primary" style="margin-top: 10px; font-size: 14px;">업그레이드</a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- 프리미엄 분석 -->
+    <div class="feed-card" style="position: relative; overflow: hidden;">
+      {% if franchise_analysis and is_authenticated and has_premium_access %}
+        <h3>💎 {{ franchise_analysis.franchise_type }} 프랜차이즈 분석</h3>
+        <div class="feed-meta">상세 매출 예측 및 투자 분석</div>
+        
+        <div class="feed-content">
+          <strong>{{ franchise_analysis.franchise_type }}</strong> 프랜차이즈는 현재 
+          <strong>{{ franchise_analysis.total_count }}개</strong>의 매장을 운영하고 있으며,
+          전체 카페 시장에서 <strong>{{ franchise_analysis.market_share }}%</strong>의 점유율을 차지하고 있습니다.
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">총 매장 수</span>
+          <span class="stat-value">{{ franchise_analysis.total_count }}개</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">평균 성장률</span>
+          <span class="stat-value">{{ franchise_analysis.avg_growth_rate }}%</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">예상 월 매출</span>
+          <span class="stat-value">{{ franchise_analysis.estimated_monthly_sales }}만원</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">예상 ROI</span>
+          <span class="stat-value">{{ franchise_analysis.roi_prediction }}%</span>
+        </div>
+        
+        {% if franchise_analysis.location_distribution %}
+          <div style="margin-top: 20px;">
+            <h4>주요 지역별 분포</h4>
+            <ul class="trending-list">
+              {% for location in franchise_analysis.location_distribution %}
+                <li>
+                  <span>{{ location.address }}</span>
+                  <span class="stat-value">{{ location.count }}개</span>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+        
+        <div class="feed-content" style="margin-top: 16px; padding: 16px; background: #f0f9ff; border-radius: 8px;">
+          <strong>💡 AI 투자 분석:</strong> 
+          {{ franchise_analysis.investment_opportunities }}개 지역에서 투자 기회가 발견되었으며,
+          {{ franchise_analysis.trendy_count }}개 지역이 트렌디한 것으로 분석됩니다.
+          {% if franchise_analysis.risk_areas > 0 %}
+            다만 {{ franchise_analysis.risk_areas }}개 지역은 위험 요소가 있어 주의가 필요합니다.
+          {% endif %}
+        </div>
+      {% elif franchise_analysis and is_authenticated and not has_premium_access %}
+        <h3>💎 {{ franchise_analysis.franchise_type }} 프랜차이즈 분석</h3>
+        <div class="feed-meta">상세 매출 예측 및 투자 분석</div>
+        
+        <div class="feed-content" style="filter: blur(95px);">
+          <strong>{{ franchise_analysis.franchise_type }}</strong> 프랜차이즈는 현재 
+          <strong>{{ franchise_analysis.total_count }}개</strong>의 매장을 운영하고 있으며,
+          전체 카페 시장에서 <strong>{{ franchise_analysis.market_share }}%</strong>의 점유율을 차지하고 있습니다.
+        </div>
+        
+        <div style="filter: blur(95px);">
+          <div class="highlight-stat">
+            <span class="stat-label">총 매장 수</span>
+            <span class="stat-value">{{ franchise_analysis.total_count }}개</span>
+          </div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">평균 성장률</span>
+            <span class="stat-value">{{ franchise_analysis.avg_growth_rate }}%</span>
+          </div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">예상 월 매출</span>
+            <span class="stat-value">{{ franchise_analysis.estimated_monthly_sales }}만원</span>
+          </div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">예상 ROI</span>
+            <span class="stat-value">{{ franchise_analysis.roi_prediction }}%</span>
+          </div>
+        </div>
+        
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 8px;">
+          <p style="margin: 0 0 10px 0; font-weight: 500;">프리미엄 플랜에서 확인하세요</p>
+          <a href="/start" class="btn btn--primary" style="margin-top: 10px; font-size: 14px;">업그레이드</a>
+        </div>
+      {% else %}
+        <h3>💎 프리미엄 분석 미리보기</h3>
+        <div class="feed-meta">상세 매출 예측 및 투자 분석</div>
+        
+        <div class="feed-content" style="filter: blur(95px);">
+          매출 예측 모델에 따르면, 성수동 일대 로스터리 카페의 월 평균 매출은 
+          3,200만원으로 예상되며, ROI는 약 18.5%로 분석됩니다...
+        </div>
+        
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 8px;">
+          {% if not is_authenticated %}
+            <p style="margin: 0; font-weight: 500;">로그인 후 이용하세요</p>
+            <a href="/login" class="btn btn--primary" style="margin-top: 8px; font-size: 14px;">로그인</a>
+          {% else %}
+            <p style="margin: 0 0 10px 0; font-weight: 500;">프리미엄 플랜에서 확인하세요</p>
+            <a href="/start" class="btn btn--primary" style="margin-top: 10px; font-size: 14px;">업그레이드</a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section">
+      <h2>더 자세한 분석이 필요하신가요?</h2>
+      <p>프리미엄 플랜으로 업그레이드하고 상세한 상권 분석과 투자 인사이트를 받아보세요</p>
+      
+      <div style="margin: 24px 0;">
+        <a href="/start" class="btn btn--primary" style="margin-right: 12px;">무료로 시작하기</a>
+        <a href="/login" class="btn btn--ghost">로그인</a>
+      </div>
+      
+      <p style="font-size: 14px; color: #6b7280; margin: 0;">
+        무료 플랜: 일일 10회 조회 | 프리미엄 플랜: 월 9,500원으로 무제한 이용
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer style="background: #f9fafb; padding: 40px 0; margin-top: 60px; text-align: center; color: #6b7280;">
+    <div class="container">
+      <p>© 2024 골목상권 빅데이터 분석. All rights reserved.</p>
+      <p style="font-size: 14px; margin-top: 8px;">
+        데이터 업데이트: 매일 오전 6시 | 
+        <a href="/privacy" style="color: #3b82f6;">개인정보처리방침</a> | 
+        <a href="/terms" style="color: #3b82f6;">이용약관</a>
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

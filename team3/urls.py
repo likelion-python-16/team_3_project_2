@@ -10,6 +10,8 @@ urlpatterns = [
     path("register/", register_page, name="register"),
     path('admin/', admin.site.urls),
     
+    # Payment and Pages URLs
+    path('', include('payments.urls')),
     
     # Template-based URLs
     path('accounts/', include(('accounts.urls', 'accounts'), namespace='accounts-web')),

@@ -1,0 +1,222 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>결제 결과 - 골목상권 빅데이터 분석</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <style>
+    .result-hero {
+      padding: 80px 0;
+      text-align: center;
+    }
+    
+    .result-hero.success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+    }
+    
+    .result-hero.error {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+    }
+    
+    .result-icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+    }
+    
+    .result-card {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    
+    .payment-details {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 24px;
+      margin: 24px 0;
+      text-align: left;
+    }
+    
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      color: #374151;
+    }
+    
+    .detail-row:last-child {
+      margin-bottom: 0;
+      font-weight: bold;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 12px;
+    }
+    
+    .btn-group {
+      margin-top: 32px;
+    }
+    
+    .btn-group .btn {
+      margin: 0 8px;
+    }
+    
+    .next-steps {
+      background: #eff6ff;
+      border-radius: 8px;
+      padding: 24px;
+      margin: 24px 0;
+      text-align: left;
+    }
+    
+    .next-steps h4 {
+      margin: 0 0 16px 0;
+      color: #1e40af;
+    }
+    
+    .next-steps ul {
+      margin: 0;
+      padding-left: 20px;
+      color: #374151;
+    }
+    
+    .next-steps li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="container topbar__row">
+      <div class="logo">
+        <a href="/" style="text-decoration: none; color: inherit;">
+          <span>🧭</span>
+          <span class="logo__title">골목상권 빅데이터 분석</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Result Hero -->
+  <section class="result-hero {% if success %}success{% else %}error{% endif %}">
+    <div class="container">
+      <div class="result-icon">
+        {% if success %}✅{% else %}❌{% endif %}
+      </div>
+      <h1>
+        {% if success %}
+          결제 완료!
+        {% else %}
+          결제 실패
+        {% endif %}
+      </h1>
+      <p>{{ message }}</p>
+    </div>
+  </section>
+
+  <!-- Result Card -->
+  <div class="container">
+    <div class="result-card">
+      
+      {% if success %}
+        <!-- 성공 시 -->
+        <h2>🎉 프리미엄 구독이 활성화되었습니다!</h2>
+        
+        {% if payment %}
+        <div class="payment-details">
+          <div class="detail-row">
+            <span>주문번호</span>
+            <span>{{ payment.order_id }}</span>
+          </div>
+          <div class="detail-row">
+            <span>결제일시</span>
+            <span>{{ payment.approved_at|date:"Y년 m월 d일 H:i" }}</span>
+          </div>
+          <div class="detail-row">
+            <span>구독 플랜</span>
+            <span>프리미엄 플랜 ({{ payment.subscription_months }}개월)</span>
+          </div>
+          <div class="detail-row">
+            <span>결제 금액</span>
+            <span>₩{{ payment.amount|floatformat:0 }}</span>
+          </div>
+        </div>
+        {% endif %}
+        
+        <div class="next-steps">
+          <h4>🚀 이제 이런 것들을 할 수 있어요!</h4>
+          <ul>
+            <li>무제한 상권 분석 조회</li>
+            <li>상세 지역별 투자 분석</li>
+            <li>AI 기반 투자 추천</li>
+            <li>위험도 분석 및 예측</li>
+            <li>엑셀/CSV 데이터 내보내기</li>
+            <li>우선 고객 지원 서비스</li>
+          </ul>
+        </div>
+        
+        <div class="btn-group">
+          <a href="/" class="btn btn--primary">분석 시작하기</a>
+          <a href="/account" class="btn btn--ghost">내 계정 보기</a>
+        </div>
+        
+      {% else %}
+        <!-- 실패 시 -->
+        <h2>결제가 완료되지 않았습니다</h2>
+        
+        <div style="color: #6b7280; margin: 24px 0;">
+          {% if code %}
+            <p><strong>오류 코드:</strong> {{ code }}</p>
+          {% endif %}
+          <p>문제가 지속되면 고객 지원팀에 문의해 주세요.</p>
+        </div>
+        
+        <div class="btn-group">
+          <a href="/payment?plan=premium" class="btn btn--primary">다시 시도</a>
+          <a href="/account" class="btn btn--ghost">내 계정</a>
+          <a href="/" class="btn btn--ghost">홈으로</a>
+        </div>
+        
+        <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">
+          <p>💡 <strong>결제 문제 해결 팁</strong></p>
+          <ul style="text-align: left; color: #6b7280;">
+            <li>카드 한도 또는 잔액을 확인해 주세요</li>
+            <li>해외 결제가 차단되어 있지 않은지 확인해 주세요</li>
+            <li>다른 결제 수단을 시도해 보세요</li>
+            <li>브라우저 쿠키 및 캐시를 삭제해 보세요</li>
+          </ul>
+        </div>
+        
+      {% endif %}
+      
+      <!-- 고객 지원 -->
+      <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 14px;">
+        <p>
+          🎧 도움이 필요하시나요? 
+          <a href="mailto:support@cafe-analysis.com" style="color: #3b82f6;">support@cafe-analysis.com</a>
+          또는 1588-1234로 연락주세요.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auto redirect for success -->
+  {% if success %}
+  <script>
+    // 5초 후 자동으로 대시보드로 이동
+    setTimeout(function() {
+      if (confirm('대시보드로 이동하시겠습니까?')) {
+        window.location.href = '/';
+      }
+    }, 5000);
+  </script>
+  {% endif %}
+</body>
+</html>

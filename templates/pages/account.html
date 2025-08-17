@@ -1,0 +1,438 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>내 계정 - 골목상권 빅데이터 분석</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <style>
+    .account-hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      padding: 40px 0;
+    }
+    
+    .account-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    .account-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 40px;
+      margin-top: 40px;
+    }
+    
+    .account-sidebar {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      height: fit-content;
+    }
+    
+    .account-main {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-section {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 32px;
+      font-weight: bold;
+      margin: 0 auto 16px auto;
+    }
+    
+    .subscription-card {
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      transition: all 0.3s ease;
+    }
+    
+    .subscription-card.premium {
+      border-color: #3b82f6;
+      background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+    }
+    
+    .subscription-card.free {
+      border-color: #d1d5db;
+    }
+    
+    .subscription-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .subscription-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 0;
+    }
+    
+    .subscription-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .subscription-badge.premium {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .subscription-badge.free {
+      background: #6b7280;
+      color: white;
+    }
+    
+    .usage-bar {
+      background: #f3f4f6;
+      height: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 16px 0;
+    }
+    
+    .usage-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #059669);
+      transition: width 0.3s ease;
+    }
+    
+    .usage-fill.warning {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+    }
+    
+    .usage-fill.danger {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+    }
+    
+    .payment-history {
+      margin-top: 32px;
+    }
+    
+    .payment-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .payment-item:last-child {
+      border-bottom: none;
+    }
+    
+    .payment-status {
+      padding: 4px 8px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .payment-status.completed {
+      background: #dcfce7;
+      color: #166534;
+    }
+    
+    .payment-status.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .btn-upgrade {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+      margin-top: 16px;
+    }
+    
+    .btn-upgrade:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+    }
+    
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 16px 0;
+    }
+    
+    .feature-list li {
+      padding: 8px 0;
+      color: #374151;
+      display: flex;
+      align-items: center;
+    }
+    
+    .feature-list li::before {
+      content: "✓";
+      color: #10b981;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    
+    .feature-list li.disabled {
+      color: #9ca3af;
+    }
+    
+    .feature-list li.disabled::before {
+      content: "✗";
+      color: #ef4444;
+    }
+    
+    @media (max-width: 768px) {
+      .account-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="container topbar__row">
+      <div class="logo">
+        <a href="/" style="text-decoration: none; color: inherit;">
+          <span>🧭</span>
+          <span class="logo__title">골목상권 빅데이터 분석</span>
+        </a>
+      </div>
+      <nav class="top-actions">
+        <a href="/" class="btn btn--ghost">대시보드</a>
+        <form action="/api/accounts/users/logout/" method="post" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--ghost">로그아웃</button>
+        </form>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="account-hero">
+    <div class="container">
+      <h1>내 계정</h1>
+      <p>구독 현황과 사용량을 확인하고 플랜을 관리하세요</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <div class="account-container">
+    <div class="account-grid">
+      
+      <!-- Sidebar -->
+      <aside class="account-sidebar">
+        <div class="profile-section">
+          <div class="profile-avatar">
+            {{ user.username|first|upper }}
+          </div>
+          <h3>{{ user.username }}</h3>
+          <p style="color: #6b7280; margin: 0;">{{ user.email }}</p>
+        </div>
+        
+        <div style="border-top: 1px solid #e5e7eb; padding-top: 24px;">
+          <h4 style="margin: 0 0 16px 0;">계정 설정</h4>
+          <ul style="list-style: none; padding: 0; margin: 0;">
+            <li><a href="#profile" style="color: #374151; text-decoration: none; display: block; padding: 8px 0;">프로필 수정</a></li>
+            <li><a href="#subscription" style="color: #374151; text-decoration: none; display: block; padding: 8px 0;">구독 관리</a></li>
+            <li><a href="#billing" style="color: #374151; text-decoration: none; display: block; padding: 8px 0;">결제 내역</a></li>
+            <li><a href="#support" style="color: #374151; text-decoration: none; display: block; padding: 8px 0;">고객 지원</a></li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="account-main">
+        
+        <!-- Current Subscription -->
+        <section id="subscription">
+          <h2>현재 구독 플랜</h2>
+          
+          {% if user.profile.is_premium %}
+          <div class="subscription-card premium">
+            <div class="subscription-header">
+              <h3 class="subscription-title">프리미엄 플랜</h3>
+              <span class="subscription-badge premium">활성화</span>
+            </div>
+            
+            <p style="color: #374151; margin: 8px 0;">
+              구독 만료일: {{ user.profile.subscription_end|date:"Y년 m월 d일" }}
+            </p>
+            
+            <ul class="feature-list">
+              <li>무제한 분석 조회</li>
+              <li>상세 지역별 분석</li>
+              <li>AI 투자 추천</li>
+              <li>데이터 내보내기</li>
+              <li>우선 고객 지원</li>
+            </ul>
+            
+            <button class="btn-upgrade" onclick="extendSubscription()">
+              구독 연장하기
+            </button>
+          </div>
+          {% else %}
+          <div class="subscription-card free">
+            <div class="subscription-header">
+              <h3 class="subscription-title">무료 플랜</h3>
+              <span class="subscription-badge free">활성화</span>
+            </div>
+            
+            <p style="color: #6b7280; margin: 16px 0;">
+              오늘 사용량: {{ user.profile.daily_usage_count }}/10회
+            </p>
+            
+            <div class="usage-bar">
+              <div class="usage-fill {% if user.profile.daily_usage_count >= 8 %}danger{% elif user.profile.daily_usage_count >= 6 %}warning{% endif %}" 
+                   style="width: {% widthratio user.profile.daily_usage_count 1 10 %}%"></div>
+            </div>
+            
+            <ul class="feature-list">
+              <li>일일 분석 조회 10회</li>
+              <li>기본 상권 분석</li>
+              <li>프랜차이즈 분석</li>
+              <li class="disabled">상세 투자 분석</li>
+              <li class="disabled">데이터 내보내기</li>
+              <li class="disabled">우선 고객 지원</li>
+            </ul>
+            
+            <button class="btn-upgrade" onclick="upgradeSubscription()">
+              프리미엄으로 업그레이드 ₩9,500/월
+            </button>
+          </div>
+          {% endif %}
+        </section>
+
+        <!-- Payment History -->
+        <section id="billing" class="payment-history">
+          <h2>결제 내역</h2>
+          
+          {% if user.payments.all %}
+            {% for payment in user.payments.all %}
+            <div class="payment-item">
+              <div>
+                <div style="font-weight: 500;">프리미엄 플랜 ({{ payment.subscription_months }}개월)</div>
+                <div style="color: #6b7280; font-size: 14px;">{{ payment.created_at|date:"Y년 m월 d일" }}</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-weight: 500;">₩{{ payment.amount|floatformat:0 }}</div>
+                <span class="payment-status {{ payment.status }}">
+                  {{ payment.get_status_display }}
+                </span>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <p style="color: #6b7280; text-align: center; padding: 40px 0;">
+              아직 결제 내역이 없습니다.
+            </p>
+          {% endif %}
+        </section>
+
+        <!-- Profile Settings -->
+        <section id="profile" style="margin-top: 40px; border-top: 1px solid #e5e7eb; padding-top: 32px;">
+          <h2>프로필 설정</h2>
+          
+          <form id="profile-form">
+            {% csrf_token %}
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">사용자명</label>
+              <input type="text" value="{{ user.username }}" style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px;" readonly>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+              <label style="display: block; margin-bottom: 8px; font-weight: 500;">이메일</label>
+              <input type="email" value="{{ user.email }}" style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px;" readonly>
+            </div>
+            
+            <p style="color: #6b7280; font-size: 14px;">
+              프로필 정보 수정을 원하시면 고객 지원팀에 문의해 주세요.
+            </p>
+          </form>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    function upgradeSubscription() {
+      if (confirm('프리미엄 플랜으로 업그레이드하시겠습니까?\n월 9,500원으로 무제한 분석 서비스를 이용할 수 있습니다.')) {
+        // 토스 페이먼츠 결제 페이지로 이동
+        window.location.href = '/payment/?plan=premium';
+      }
+    }
+    
+    function extendSubscription() {
+      if (confirm('프리미엄 구독을 1개월 연장하시겠습니까?')) {
+        // 토스 페이먼츠 결제 페이지로 이동
+        window.location.href = '/payment/?plan=premium&extend=true';
+      }
+    }
+    
+    // 실시간 사용량 업데이트
+    async function updateUsage() {
+      try {
+        const response = await fetch('/api/accounts/usage/');
+        const data = await response.json();
+        
+        if (data.success) {
+          const usageCount = document.querySelector('.usage-fill');
+          if (usageCount) {
+            const percentage = (data.daily_usage / 10) * 100;
+            usageCount.style.width = percentage + '%';
+            
+            // 사용량에 따른 색상 변경
+            usageCount.className = 'usage-fill';
+            if (percentage >= 80) {
+              usageCount.classList.add('danger');
+            } else if (percentage >= 60) {
+              usageCount.classList.add('warning');
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Usage update failed:', error);
+      }
+    }
+    
+    // 페이지 로드 시 사용량 업데이트
+    document.addEventListener('DOMContentLoaded', function() {
+      {% if not user.profile.is_premium %}
+        updateUsage();
+        // 5분마다 사용량 업데이트
+        setInterval(updateUsage, 300000);
+      {% endif %}
+    });
+  </script>
+</body>
+</html>

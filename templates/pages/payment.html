@@ -1,0 +1,376 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>결제 - 골목상권 빅데이터 분석</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <script src="https://js.tosspayments.com/v1/payment-widget"></script>
+  <style>
+    .payment-hero {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: white;
+      padding: 60px 0;
+      text-align: center;
+    }
+    
+    .payment-container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    
+    .payment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-top: 40px;
+    }
+    
+    .order-summary {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      height: fit-content;
+    }
+    
+    .payment-form {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .plan-card {
+      border: 2px solid #10b981;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    }
+    
+    .plan-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0 0 8px 0;
+      color: #059669;
+    }
+    
+    .plan-price {
+      font-size: 32px;
+      font-weight: bold;
+      color: #047857;
+      margin: 16px 0;
+    }
+    
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin: 16px 0 0 0;
+    }
+    
+    .plan-features li {
+      padding: 8px 0;
+      color: #374151;
+      display: flex;
+      align-items: center;
+    }
+    
+    .plan-features li::before {
+      content: "✓";
+      color: #10b981;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+    
+    .price-breakdown {
+      border-top: 1px solid #e5e7eb;
+      padding-top: 20px;
+      margin-top: 20px;
+    }
+    
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      color: #6b7280;
+    }
+    
+    .price-row.total {
+      border-top: 1px solid #e5e7eb;
+      padding-top: 12px;
+      margin-top: 12px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #111827;
+    }
+    
+    .payment-widget {
+      margin: 24px 0;
+      min-height: 300px;
+    }
+    
+    .btn-payment {
+      width: 100%;
+      background: #059669;
+      color: white;
+      border: none;
+      padding: 16px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    
+    .btn-payment:hover {
+      background: #047857;
+    }
+    
+    .btn-payment:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    
+    .security-info {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 24px;
+      font-size: 14px;
+      color: #6b7280;
+      text-align: center;
+    }
+    
+    .error-message {
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 16px 0;
+      display: none;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px 0;
+      color: #6b7280;
+    }
+    
+    @media (max-width: 768px) {
+      .payment-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="container topbar__row">
+      <div class="logo">
+        <a href="/" style="text-decoration: none; color: inherit;">
+          <span>🧭</span>
+          <span class="logo__title">골목상권 빅데이터 분석</span>
+        </a>
+      </div>
+      <nav class="top-actions">
+        <a href="/account" class="btn btn--ghost">내 계정</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="payment-hero">
+    <div class="container">
+      <h1>🎯 프리미엄 구독 결제</h1>
+      <p>무제한 상권 분석으로 성공적인 투자를 시작하세요</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <div class="payment-container">
+    <div class="payment-grid">
+      
+      <!-- Order Summary -->
+      <div class="order-summary">
+        <h2>주문 요약</h2>
+        
+        <div class="plan-card">
+          <h3 class="plan-title">프리미엄 플랜</h3>
+          <div class="plan-price">
+            ₩9,500
+            <span style="font-size: 16px; color: #6b7280;">/월</span>
+          </div>
+          
+          <ul class="plan-features">
+            <li>무제한 분석 조회</li>
+            <li>상세 지역별 분석</li>
+            <li>AI 투자 추천</li>
+            <li>위험도 분석</li>
+            <li>데이터 내보내기</li>
+            <li>우선 고객 지원</li>
+          </ul>
+        </div>
+        
+        <div class="price-breakdown">
+          <div class="price-row">
+            <span>프리미엄 플랜 (1개월)</span>
+            <span>₩9,500</span>
+          </div>
+          <div class="price-row">
+            <span>부가세</span>
+            <span>₩0</span>
+          </div>
+          <div class="price-row total">
+            <span>총 결제 금액</span>
+            <span>₩9,500</span>
+          </div>
+        </div>
+        
+        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
+          <h4 style="margin: 0 0 12px 0; color: #374151;">구독 혜택</h4>
+          <p style="color: #6b7280; font-size: 14px; margin: 0;">
+            • 언제든지 구독을 취소할 수 있습니다<br>
+            • 첫 7일간 무료 체험 (신규 고객)<br>
+            • 월 중 해지 시 일할 계산 환불
+          </p>
+        </div>
+      </div>
+
+      <!-- Payment Form -->
+      <div class="payment-form">
+        <h2>결제 정보</h2>
+        
+        <div class="error-message" id="error-message"></div>
+        
+        <!-- 토스 페이먼츠 위젯 -->
+        <div id="payment-widget" class="payment-widget">
+          <div class="loading">결제 모듈을 불러오는 중...</div>
+        </div>
+        
+        <button id="payment-button" class="btn-payment" disabled>
+          결제하기 (₩9,500)
+        </button>
+        
+        <div class="security-info">
+          🔒 SSL 암호화로 안전하게 보호됩니다<br>
+          토스페이먼츠의 안전한 결제 시스템을 사용합니다
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 토스 페이먼츠 설정
+    const clientKey = "test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq"; // 테스트 키 (실제 운영 시 변경 필요)
+    const customerKey = "{{ user.user_id }}"; // 사용자 고유 ID
+    
+    // 주문 정보
+    const orderData = {
+      amount: 9500,
+      orderId: `ORDER_${Date.now()}_${customerKey}`,
+      orderName: "프리미엄 플랜 (1개월)",
+      customerName: "{{ user.username }}",
+      customerEmail: "{{ user.email }}"
+    };
+    
+    let paymentWidget;
+    
+    // 결제 위젯 초기화
+    async function initPaymentWidget() {
+      try {
+        const { PaymentWidget } = await import("https://js.tosspayments.com/v1/payment-widget");
+        
+        paymentWidget = PaymentWidget(clientKey, customerKey);
+        
+        // 결제 방법 UI 렌더링
+        await paymentWidget.renderPaymentMethods("#payment-widget", orderData.amount);
+        
+        // 이용약관 UI 렌더링 (선택사항)
+        // await paymentWidget.renderAgreement("#agreement");
+        
+        // 결제 버튼 활성화
+        document.getElementById('payment-button').disabled = false;
+        
+      } catch (error) {
+        console.error('Payment widget initialization failed:', error);
+        showError('결제 시스템 초기화에 실패했습니다. 페이지를 새로고침해 주세요.');
+      }
+    }
+    
+    // 결제 요청
+    async function requestPayment() {
+      try {
+        // 서버에 주문 정보 저장
+        const orderResponse = await fetch('/api/payments/create-order/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          },
+          body: JSON.stringify({
+            amount: orderData.amount,
+            order_id: orderData.orderId,
+            plan: 'premium'
+          })
+        });
+        
+        if (!orderResponse.ok) {
+          throw new Error('주문 생성에 실패했습니다.');
+        }
+        
+        // 토스 페이먼츠 결제 요청
+        await paymentWidget.requestPayment({
+          orderId: orderData.orderId,
+          orderName: orderData.orderName,
+          customerName: orderData.customerName,
+          customerEmail: orderData.customerEmail,
+          successUrl: `${window.location.origin}/payment/success/`,
+          failUrl: `${window.location.origin}/payment/fail/`
+        });
+        
+      } catch (error) {
+        console.error('Payment request failed:', error);
+        showError(error.message || '결제 요청에 실패했습니다.');
+      }
+    }
+    
+    // 에러 메시지 표시
+    function showError(message) {
+      const errorDiv = document.getElementById('error-message');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+    }
+    
+    // 페이지 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+      // CSRF 토큰 추가
+      if (!document.querySelector('[name=csrfmiddlewaretoken]')) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = '{{ csrf_token }}';
+        document.body.appendChild(csrfInput);
+      }
+      
+      // 결제 위젯 초기화
+      initPaymentWidget();
+      
+      // 결제 버튼 이벤트
+      document.getElementById('payment-button').addEventListener('click', requestPayment);
+    });
+    
+    // URL 파라미터 확인 (연장 결제인지 체크)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('extend') === 'true') {
+      document.querySelector('.plan-title').textContent = '프리미엄 플랜 연장';
+      document.querySelector('h1').textContent = '🔄 구독 연장 결제';
+      document.querySelector('h1').nextElementSibling.textContent = '프리미엄 구독을 연장하여 계속 이용하세요';
+    }
+  </script>
+</body>
+</html>
