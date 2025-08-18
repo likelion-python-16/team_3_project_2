@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>무료로 시작하기 - 골목상권 빅데이터 분석</title>
+  <title>요금제 - 골목상권 빅데이터 분석</title>
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   <style>
     .start-hero {
@@ -162,13 +162,15 @@
           <span style="font-size: 16px; color: #64748b;">/월</span>
         </div>
         <ul class="plan-features">
-          <li>일일 분석 조회 10회</li>
+          <li>일일 분석 조회 3회</li>
           <li>기본 상권 지도 분석</li>
           <li>프랜차이즈 분석</li>
           <li>트렌드 요약 보기</li>
           <li>커뮤니티 지원</li>
+          <li>무료 체험</li>
+          <li>기본 상권 분석</li>
         </ul>
-        <button class="btn-primary" onclick="showSignupForm('free')">무료로 시작하기</button>
+        <button class="btn-primary" onclick="handleButtonClick('free')">무료로 시작하기</button>
       </div>
 
       <!-- 프리미엄 플랜 -->
@@ -190,7 +192,7 @@
           <li>데이터 내보내기</li>
           <li>우선 고객 지원</li>
         </ul>
-        <button class="btn-primary" onclick="showSignupForm('premium')">프리미엄 시작하기</button>
+        <button class="btn-primary" onclick="handleButtonClick('premium')">프리미엄 시작하기</button>
       </div>
     </div>
   </section>
@@ -222,9 +224,7 @@
           <input type="password" id="password_confirm" name="password_confirm" required>
         </div>
         
-        <button type="submit" class="btn-primary" id="signup-btn">
-          계정 만들기
-        </button>
+
       </form>
       
       <div style="text-align: center; margin-top: 20px; color: #64748b;">
@@ -234,7 +234,26 @@
   </section>
 
   <script>
+    // Django에서 전달받은 로그인 상태
+    const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
     let selectedPlan = 'free';
+    
+    function handleButtonClick(plan) {
+      if (!isAuthenticated) {
+        // 로그인이 안되어 있으면 로그인 페이지로 이동
+        window.location.href = '/login/';
+        return;
+      }
+      
+      // 로그인이 되어 있으면 플랜에 따라 분기
+      if (plan === 'free') {
+        // 무료 플랜: 지도 분석 페이지로 이동
+        window.location.href = '/';
+      } else if (plan === 'premium') {
+        // 프리미엄 플랜: 결제 페이지로 이동
+        window.location.href = '/payment/?plan=premium';
+      }
+    }
     
     function showSignupForm(plan) {
       selectedPlan = plan;

@@ -1,7 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded 이벤트 발생');
     const tabs = document.querySelectorAll('.tab');
     const contentPane = document.getElementById('content-pane');
     const selRegion = document.getElementById('selRegion');
+    
+    console.log('DOM 요소들:', {
+        tabs: tabs.length,
+        contentPane: !!contentPane,
+        selRegion: !!selRegion
+    });
 
     const paneUrls = {
         map: "/cafes/pane/map/",
@@ -13,8 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 지역 선택에서 현재 선택된 지역 파라미터를 가져오는 함수
     function getCurrentRegionParam() {
         if (selRegion) {
-            const selectedOption = selRegion.options[selRegion.selectedIndex];
-            return selectedOption ? selectedOption.text : '';
+            return selRegion.value === 'seoul_all' ? '서울시 전체' : selRegion.value;
         }
         return '';
     }
@@ -32,8 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function getCurrentMidCategoryParam() {
         const selMid = document.getElementById('selMid');
         if (selMid) {
-            const selectedOption = selMid.options[selMid.selectedIndex];
-            return selectedOption ? selectedOption.text : '';
+            return selMid.value === 'all' ? '전체' : selMid.value;
         }
         return '';
     }
@@ -77,23 +82,133 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to update current pane with new filters
     function updateCurrentPane() {
+        console.log('updateCurrentPane 함수 호출됨');
         const activeTab = document.querySelector('.tab.active');
         if (activeTab && contentPane) {
             const paneName = activeTab.dataset.tab;
             if (paneUrls[paneName]) {
-                contentPane.src = updateIframeSrc(paneUrls[paneName]);
+                const newSrc = updateIframeSrc(paneUrls[paneName]);
+                contentPane.src = newSrc;
+                
+                // iframe 로드 완료 후 메시지 전송
+                contentPane.onload = function() {
+                    sendFiltersToIframe();
+                };
             }
+        }
+        // 지역별 통계도 업데이트
+        updateRegionStats();
+    }
+
+    // iframe에 필터 정보를 전송하는 함수
+    function sendFiltersToIframe() {
+        if (contentPane && contentPane.contentWindow) {
+            const filterData = {
+                type: 'FILTER_UPDATE',
+                filters: {
+                    region: getCurrentRegionParam(),
+                    major_category: getCurrentMajorCategoryParam(),
+                    mid_category: getCurrentMidCategoryParam()
+                }
+            };
+            
+            try {
+                contentPane.contentWindow.postMessage(filterData, '*');
+                console.log('iframe에 필터 데이터 전송:', filterData);
+            } catch (error) {
+                console.warn('iframe 메시지 전송 실패:', error);
+            }
+        }
+    }
+
+    // Function to update region statistics
+    function updateRegionStats() {
+        const params = new URLSearchParams();
+        
+        const regionText = getCurrentRegionParam();
+        if (regionText) {
+            params.append('region', regionText);
+        }
+        
+        const majorCategory = getCurrentMajorCategoryParam();
+        if (majorCategory) {
+            params.append('major_category', majorCategory);
+        }
+        
+        const midCategory = getCurrentMidCategoryParam();
+        if (midCategory) {
+            params.append('mid_category', midCategory);
+        }
+        
+        console.log('API 호출 파라미터:', {
+            region: regionText,
+            major_category: majorCategory,
+            mid_category: midCategory
+        });
+        
+        const apiUrl = `/api/cafes/cafes/region_stats/?${params.toString()}`;
+        console.log('API URL:', apiUrl);
+        
+        // API 호출
+        fetch(apiUrl)
+            .then(response => {
+                console.log('API 응답 상태:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('API 응답 데이터:', data);
+                // DOM 업데이트
+                updateStatsDisplay(data);
+            })
+            .catch(error => {
+                console.error('통계 데이터 로딩 실패:', error);
+                console.error('Error details:', error.message);
+            });
+    }
+
+    // Function to update stats display
+    function updateStatsDisplay(data) {
+        const storeElement = document.getElementById('k_store');
+        const growthElements = document.querySelectorAll('.stat .v.up');
+        const riskElements = document.querySelectorAll('.stat .v.warn');
+        
+        if (storeElement) {
+            storeElement.textContent = data.total_stores || 0;
+        }
+        
+        // 매출 증가율 업데이트 (두 번째 .v.up 요소)
+        if (growthElements.length > 0) {
+            growthElements[0].textContent = data.growth_rate || '0%';
+        }
+        
+        // 위험 지역 업데이트
+        if (riskElements.length > 0) {
+            riskElements[0].textContent = `${data.risk_areas_count || 0}곳`;
+        }
+        
+        // 신규 창업 업데이트 (세 번째 .v.up 요소)
+        if (growthElements.length > 1) {
+            growthElements[1].textContent = `+${data.new_businesses || 0}`;
         }
     }
 
     // Add event listeners for all filter changes
     if (selRegion) {
-        selRegion.addEventListener('change', updateCurrentPane);
+        console.log('지역 선택 이벤트 리스너 추가');
+        selRegion.addEventListener('change', function() {
+            console.log('지역 선택 변경됨:', selRegion.value);
+            updateCurrentPane();
+        });
 
         // Set initial region parameter for the default map pane
         if (contentPane && contentPane.src.includes('/cafes/pane/map/')) {
             contentPane.src = updateIframeSrc(paneUrls.map);
         }
+    } else {
+        console.error('selRegion 요소를 찾을 수 없습니다!');
     }
 
     // Add event listeners for major and mid category changes
@@ -147,6 +262,10 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = '/register/';
         });
     }
+    
+    // 페이지 로딩 시 초기 통계 호출
+    console.log('초기 통계 데이터 로딩 시작');
+    updateRegionStats();
 });
 
 // 요금제 모달 표시

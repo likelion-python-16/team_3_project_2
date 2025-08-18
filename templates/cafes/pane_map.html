@@ -20,9 +20,9 @@
     <div id="map" class="map"></div>
     <div class="grid-4 kpi-grid">
       <div class="kpi"><div class="t">표시된 상권 수</div><div class="v" id="k_cnt">{{ total_count }}</div></div>
-      <div class="kpi"><div class="t">전체 사업자</div><div class="v">{{ total_count }}</div></div>
-      <div class="kpi"><div class="t">평균 성장률</div><div class="v up">+7.9%</div><div class="s">선택한 지역 평균</div></div>
-      <div class="kpi"><div class="t">위험 지역</div><div class="v warn">1</div></div>
+      <div class="kpi"><div class="t">전체 사업자</div><div class="v">{{ total_businesses_by_region }}</div></div>
+      <div class="kpi"><div class="t">평균 성장률</div><div class="v up">{{ avg_growth_rate }}</div><div class="s">선택한 지역 평균</div></div>
+      <div class="kpi"><div class="t">위험 지역</div><div class="v warn">{{ risk_areas_count }}</div></div>
     </div>
   </div>
 </body>
@@ -30,15 +30,92 @@
   <script type="text/javascript">
     // URL 파라미터에서 지역 정보 읽기
     const urlParams = new URLSearchParams(window.location.search);
-    const selectedRegion = urlParams.get('region') || '서울시 전체';
+    let selectedRegion = urlParams.get('region') || '서울시 전체';
+    let selectedMajorCategory = urlParams.get('major_category') || 'type_all';
+    let selectedMidCategory = urlParams.get('mid_category') || '전체';
     
     // 페이지 로드 시 제목 업데이트
     document.addEventListener('DOMContentLoaded', () => {
+      updatePageTitle();
+    });
+
+    // 부모 창으로부터 메시지 수신
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.type === 'FILTER_UPDATE') {
+        console.log('지도 iframe: 필터 업데이트 메시지 수신', event.data.filters);
+        
+        // 필터 값 업데이트
+        selectedRegion = event.data.filters.region || '서울시 전체';
+        selectedMajorCategory = event.data.filters.major_category || 'type_all';
+        selectedMidCategory = event.data.filters.mid_category || '전체';
+        
+        // UI 업데이트
+        updatePageTitle();
+        updateKPIValues();
+      }
+    });
+
+    // 페이지 제목 업데이트
+    function updatePageTitle() {
       const cardHeadTitle = document.querySelector('.card__head h3');
       if (cardHeadTitle) {
         cardHeadTitle.innerHTML = `${selectedRegion} 상권 지도 <span class="tag">카페 업종 분석 결과</span>`;
       }
-    });
+    }
+
+    // KPI 값 업데이트
+    function updateKPIValues() {
+      const params = new URLSearchParams();
+      
+      if (selectedRegion && selectedRegion !== '서울시 전체') {
+        params.append('region', selectedRegion);
+      }
+      if (selectedMajorCategory && selectedMajorCategory !== 'type_all') {
+        params.append('major_category', selectedMajorCategory);
+      }
+      if (selectedMidCategory && selectedMidCategory !== '전체') {
+        params.append('mid_category', selectedMidCategory);
+      }
+      
+      const apiUrl = `/api/cafes/cafes/region_stats/?${params.toString()}`;
+      console.log('지도 iframe: KPI 업데이트 API 호출', apiUrl);
+      
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('지도 iframe: KPI 데이터 수신', data);
+          updateKPIDisplay(data);
+        })
+        .catch(error => {
+          console.error('지도 iframe: KPI 데이터 로딩 실패:', error);
+        });
+    }
+
+    // KPI 화면 업데이트
+    function updateKPIDisplay(data) {
+      const kCntElement = document.getElementById('k_cnt');
+      if (kCntElement) {
+        kCntElement.textContent = data.total_stores || 0;
+      }
+      
+      // 다른 KPI 요소들도 업데이트
+      const kpiElements = document.querySelectorAll('.kpi .v');
+      if (kpiElements.length >= 3) {
+        // 평균 성장률 업데이트 (세 번째 .v 요소)
+        if (kpiElements[2]) {
+          kpiElements[2].textContent = data.growth_rate || '0%';
+        }
+        // 위험 지역 업데이트 (네 번째 .v 요소)
+        if (kpiElements[3]) {
+          kpiElements[3].textContent = data.risk_areas_count || 0;
+        }
+      }
+    }
 
     var container = document.getElementById('map'); //지도를 담을 영역의 DOM 레퍼런스
     var options = { //지도를 생성할 때 필요한 기본 옵션

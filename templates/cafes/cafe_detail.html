@@ -71,7 +71,7 @@
             <div class="bars">
                 {% for sale in cafe.sales.all|slice:":5" %}
                 <div class="row">
-                    <div class="brand">{{ sale.date|date:"Y-m-d" }}</div>
+                    <div class="brand">{{ sale.date }}</div>
                     <div class="bar"><span style="width:{{ sale.sales|div:1000000|mul:10 }}%"></span></div>
                     <div class="bar-meta">{{ sale.sales|floatformat:0 }}원 · 방문자 {{ sale.visitor_count }}명</div>
                 </div>

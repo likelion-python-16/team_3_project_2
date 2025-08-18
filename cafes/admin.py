@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django import forms
 from .models import ResidentPopulation, CafeId, CafeSales, CafeReview, CafeTrendAI
 
 @admin.register(ResidentPopulation)
@@ -10,19 +11,23 @@ class ResidentPopulationAdmin(admin.ModelAdmin):
 
 @admin.register(CafeId)
 class CafeIdAdmin(admin.ModelAdmin):
-    list_display = ("cafe_id", "name", "address", "biz_code", "latitude", "longitude", "rp_key")
-    search_fields = ("name", "address", "biz_code")
+    list_display = ("cafe_id", "name","city","distinct", "detail_address", "biz_code", "latitude", "longitude", "rp_key")
+    search_fields = ("name","city","distinct", "detail_address", "biz_code")
     autocomplete_fields = ("rp_key",)
     ordering = ("name",)
 
 @admin.register(CafeSales)
 class CafeSalesAdmin(admin.ModelAdmin):
     list_display = ("sales_id", "cafe", "date", "price", "visitor_count", "aov", "sales")
-    list_filter = ("cafe",)
+    list_filter = ("cafe", "date")
     search_fields = ("cafe__name",)
     autocomplete_fields = ("cafe",)
-    date_hierarchy = "date"
     ordering = ("-date",)
+    
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == 'date':
+            kwargs['widget'] = forms.TextInput(attrs={'placeholder': '2025-07'})
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
 
 @admin.register(CafeReview)
 class CafeReviewAdmin(admin.ModelAdmin):

@@ -31,6 +31,15 @@ class CafeIdViewSet(viewsets.ModelViewSet):
         from datetime import datetime, timedelta
         
         cafes = self.get_queryset()
+        
+        # 지역 목록 (구 단위 중복 제거)
+        distinct_list = CafeId.objects.values_list('distinct', flat=True).distinct().order_by('distinct')
+        
+        # 업종 중분류 목록 (franchise_type 중복 제거)
+        franchise_type_list = CafeId.objects.filter(
+            franchise_type__isnull=False
+        ).exclude(franchise_type='').values_list('franchise_type', flat=True).distinct().order_by('franchise_type')
+        
         # 프랜차이즈가 True인 franchise_type을 중복 제거하고 4개만 가져오기
         franchise_types = CafeId.objects.filter(
             franchise=True, 
@@ -54,6 +63,8 @@ class CafeIdViewSet(viewsets.ModelViewSet):
         
         context = {
             'cafes': cafes,
+            'distinct_list': distinct_list,
+            'franchise_type_list': franchise_type_list,
             'franchise_types': franchise_types,
             'total_stores': total_stores,
             'growth_rate': growth_rate_formatted,
@@ -80,25 +91,23 @@ class CafeIdViewSet(viewsets.ModelViewSet):
         
         queryset = self.get_queryset()
         
-        # 지역 필터
+        # 지역 필터 - 다른 뷰와 동일한 방식 사용
         region = request.query_params.get('region')
-        if region and region != '전체':
-            queryset = queryset.filter(address__icontains=region)
+        if region and region != '서울시 전체':
+            queryset = queryset.filter(distinct=region)
         
-        # 업종 대분류 필터
+        # 업종 대분류 필터 - 다른 뷰와 동일한 방식 사용
         major_category = request.query_params.get('major_category')
-        if major_category and major_category not in ['전체', '']:
-            # 업종 대분류에 따른 필터링 (예시)
-            if major_category == '외식':
-                queryset = queryset.filter(Q(name__icontains='카페') | Q(name__icontains='커피'))
+        if major_category and major_category != 'type_all':
+            if major_category == 'franchise':
+                queryset = queryset.filter(franchise=True)
+            elif major_category == 'individual':
+                queryset = queryset.filter(franchise=False)
         
-        # 업종 중분류 필터
+        # 업종 중분류 필터 - 다른 뷰와 동일한 방식 사용
         mid_category = request.query_params.get('mid_category')
-        if mid_category and mid_category not in ['전체', '']:
-            if mid_category == '카페':
-                queryset = queryset.filter(Q(name__icontains='카페') | Q(name__icontains='커피'))
-            elif mid_category == '디저트':
-                queryset = queryset.filter(Q(name__icontains='디저트') | Q(name__icontains='베이커리'))
+        if mid_category and mid_category != '전체':
+            queryset = queryset.filter(franchise_type__icontains=mid_category)
         
         # 프랜차이즈 필터
         franchise = request.query_params.get('franchise')
@@ -111,7 +120,7 @@ class CafeIdViewSet(viewsets.ModelViewSet):
             map_data.append({
                 'id': cafe.cafe_id,
                 'name': cafe.name,
-                'address': cafe.address,
+                'detail_address': cafe.detail_address,
                 'latitude': cafe.latitude,
                 'longitude': cafe.longitude,
                 'status': self._get_cafe_status(cafe),  # 안정/주의/위험 상태
@@ -139,6 +148,59 @@ class CafeIdViewSet(viewsets.ModelViewSet):
                 'mid_category': mid_category,
                 'franchise': franchise,
             }
+        })
+    
+    @action(detail=False, methods=['get'])
+    def region_stats(self, request):
+        """지역별 통계 데이터를 반환하는 API"""
+        region = request.query_params.get('region', '서울시 전체')
+        major_category = request.query_params.get('major_category', 'type_all')
+        mid_category = request.query_params.get('mid_category', '전체')
+        
+        # 기본 쿼리셋
+        cafes = CafeId.objects.select_related("rp_key").all()
+        
+        # 지역 필터 적용
+        if region and region != '서울시 전체':
+            cafes = cafes.filter(distinct=region)
+        
+        # 업종 대분류 필터 적용
+        if major_category and major_category != 'type_all':
+            if major_category == 'franchise':
+                cafes = cafes.filter(franchise=True)
+            elif major_category == 'individual':
+                cafes = cafes.filter(franchise=False)
+        
+        # 업종 중분류 필터 적용
+        if mid_category and mid_category != '전체':
+            cafes = cafes.filter(franchise_type__icontains=mid_category)
+        
+        # 통계 계산
+        total_stores = cafes.count()
+        
+        # 필터링된 카페들의 rp_key를 기반으로 트렌드 데이터 가져오기
+        rp_keys = cafes.values_list('rp_key', flat=True).distinct()
+        trends = CafeTrendAI.objects.filter(rp_key__in=rp_keys)
+        
+        # 평균 성장률 계산
+        from django.db.models import Avg
+        avg_growth_rate = trends.aggregate(avg_growth=Avg('predicted_growth_rate'))['avg_growth'] or 0
+        growth_rate_formatted = f"+{avg_growth_rate:.1f}%" if avg_growth_rate > 0 else f"{avg_growth_rate:.1f}%"
+        
+        # 위험지역 수 계산
+        risk_areas_count = trends.filter(is_risk_area=True).count()
+        
+        # 신규 창업 (투자 기회 지역 수)
+        new_businesses = trends.filter(investment_opportunity=True).count()
+        
+        return Response({
+            'total_stores': total_stores,
+            'growth_rate': growth_rate_formatted,
+            'risk_areas_count': risk_areas_count,
+            'new_businesses': new_businesses,
+            'region': region,
+            'major_category': major_category,
+            'mid_category': mid_category
         })
     
     def _get_cafe_status(self, cafe):
@@ -187,6 +249,8 @@ class CafeTrendAIViewSet(viewsets.ModelViewSet):
 
 
 def pane_map_view(request):
+    from django.db.models import Avg, Count, Q
+    
     # URL 파라미터에서 필터 조건 가져오기
     region = request.GET.get('region', '서울시 전체')
     major_category = request.GET.get('major_category', 'type_all')
@@ -196,9 +260,9 @@ def pane_map_view(request):
     # 기본 쿼리셋
     cafes = CafeId.objects.select_related("rp_key").all()
     
-    # 지역 필터 적용
+    # 지역 필터 적용 - region_stats API와 동일한 방식 사용
     if region and region != '서울시 전체':
-        cafes = cafes.filter(address__icontains=region)
+        cafes = cafes.filter(distinct=region)
     
     # 업종 대분류 필터 적용
     if major_category and major_category != 'type_all':
@@ -215,16 +279,37 @@ def pane_map_view(request):
     if franchise:
         cafes = cafes.filter(name__icontains=franchise)
     
+    # 지역만 필터링된 전체 사업자 수 계산
+    region_only_cafes = CafeId.objects.select_related("rp_key").all()
+    if region and region != '서울시 전체':
+        region_only_cafes = region_only_cafes.filter(distinct=region)
+    total_businesses_by_region = region_only_cafes.count()
+    
     # 통계 계산
     total_count = cafes.count()
     franchise_count = cafes.filter(franchise=True).count()
     individual_count = cafes.filter(franchise=False).count()
     
+    # CafeTrendAI 모델에서 평균 성장률과 위험지역 수 계산
+    # 필터링된 카페들의 rp_key를 기반으로 트렌드 데이터 가져오기
+    rp_keys = cafes.values_list('rp_key', flat=True).distinct()
+    trends = CafeTrendAI.objects.filter(rp_key__in=rp_keys)
+    
+    # 평균 성장률 계산
+    avg_growth_rate = trends.aggregate(avg_growth=Avg('predicted_growth_rate'))['avg_growth'] or 0
+    growth_rate_formatted = f"+{avg_growth_rate:.1f}%" if avg_growth_rate > 0 else f"{avg_growth_rate:.1f}%"
+    
+    # 위험지역 수 계산
+    risk_areas_count = trends.filter(is_risk_area=True).count()
+    
     context = {
         'cafes': cafes,
         'total_count': total_count,
+        'total_businesses_by_region': total_businesses_by_region,
         'franchise_count': franchise_count,
         'individual_count': individual_count,
+        'avg_growth_rate': growth_rate_formatted,
+        'risk_areas_count': risk_areas_count,
         'selected_region': region,
         'selected_major_category': major_category,
         'selected_mid_category': mid_category,
@@ -234,7 +319,7 @@ def pane_map_view(request):
     return render(request, 'cafes/pane_map.html', context)
 
 def pane_franchise_view(request):
-    from django.db.models import Count, Q
+    from django.db.models import Count, Q, Avg
     
     # URL 파라미터에서 필터 조건 가져오기
     region = request.GET.get('region', '서울시 전체')
@@ -245,9 +330,9 @@ def pane_franchise_view(request):
     # 기본 쿼리셋
     cafes = CafeId.objects.select_related("rp_key").all()
     
-    # 지역 필터 적용
+    # 지역 필터 적용 - region_stats API와 동일한 방식 사용
     if region and region != '서울시 전체':
-        cafes = cafes.filter(address__icontains=region)
+        cafes = cafes.filter(distinct=region)
     
     # 업종 대분류 필터 적용
     if major_category and major_category != 'type_all':
@@ -283,6 +368,15 @@ def pane_franchise_view(request):
     franchise_count = cafes.filter(franchise=True).count()
     individual_count = cafes.filter(franchise=False).count()
     
+    # CafeTrendAI 모델에서 평균 성장률 계산
+    # 필터링된 카페들의 rp_key를 기반으로 트렌드 데이터 가져오기
+    rp_keys = cafes.values_list('rp_key', flat=True).distinct()
+    trends = CafeTrendAI.objects.filter(rp_key__in=rp_keys)
+    
+    # 평균 성장률 계산
+    avg_growth_rate = trends.aggregate(avg_growth=Avg('predicted_growth_rate'))['avg_growth'] or 0
+    growth_rate_formatted = f"+{avg_growth_rate:.1f}%" if avg_growth_rate > 0 else f"{avg_growth_rate:.1f}%"
+    
     # 위험도 분석 (임시 로직)
     safe_franchises = 0
     warning_franchises = 0
@@ -307,6 +401,7 @@ def pane_franchise_view(request):
         'individual_count': individual_count,
         'franchise_stats': franchise_stats,
         'total_sales': total_sales,
+        'avg_growth_rate': growth_rate_formatted,
         'safe_franchises': safe_franchises,
         'warning_franchises': warning_franchises,
         'risk_franchises': risk_franchises,
@@ -330,9 +425,9 @@ def pane_trend_view(request):
     # 기본 쿼리셋 (카페 데이터)
     cafes = CafeId.objects.select_related("rp_key").all()
     
-    # 지역 필터 적용
+    # 지역 필터 적용 - region_stats API와 동일한 방식 사용
     if region and region != '서울시 전체':
-        cafes = cafes.filter(address__icontains=region)
+        cafes = cafes.filter(distinct=region)
     
     # 업종 대분류 필터 적용
     if major_category and major_category != 'type_all':
