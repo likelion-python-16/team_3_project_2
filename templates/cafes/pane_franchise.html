@@ -6,6 +6,207 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>프랜차이즈 분석</title>
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <style>
+    /* KPI 클릭 가능 스타일 */
+    .kpi .v {
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-radius: 4px;
+      padding: 2px 4px;
+    }
+    
+    .kpi .v:hover {
+      background-color: #f3f4f6;
+      transform: scale(1.05);
+    }
+    
+    /* 모달 오버레이 */
+    .analysis-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .analysis-modal-overlay.active {
+      display: flex;
+    }
+    
+    /* 모달 컨테이너 */
+    .analysis-modal {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    /* 모달 헤더 */
+    .analysis-modal-header {
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      color: white;
+      padding: 20px 24px;
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .analysis-modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 0;
+    }
+    
+    .analysis-modal-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s ease;
+    }
+    
+    .analysis-modal-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* 모달 내용 */
+    .analysis-modal-content {
+      padding: 24px;
+    }
+    
+    /* 피드 카드 스타일 */
+    .feed-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid #3b82f6;
+    }
+    
+    .feed-card h3 {
+      margin: 0 0 12px 0;
+      color: #1f2937;
+    }
+    
+    .feed-meta {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    
+    .feed-content {
+      color: #374151;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    
+    .highlight-stat {
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .stat-label {
+      font-weight: 500;
+      color: #374151;
+    }
+    
+    .stat-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #059669;
+    }
+    
+    .stat-value.warning {
+      color: #d97706;
+    }
+    
+    .stat-value.danger {
+      color: #dc2626;
+    }
+    
+    .trending-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .trending-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .trending-list li:last-child {
+      border-bottom: none;
+    }
+    
+    .trend-up {
+      color: #059669;
+    }
+    
+    .trend-down {
+      color: #dc2626;
+    }
+    
+    /* 로딩 스피너 */
+    .loading-spinner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
   <div class="card tab-pane" id="pane-franchise">
@@ -40,6 +241,21 @@
       </div>
     </div>
   </div>
+
+  <!-- 분석 모달 -->
+  <div class="analysis-modal-overlay" id="analysisModal">
+    <div class="analysis-modal">
+      <div class="analysis-modal-header">
+        <h2 class="analysis-modal-title" id="modalTitle">상세 분석</h2>
+        <button class="analysis-modal-close" onclick="closeAnalysisModal()">&times;</button>
+      </div>
+      <div class="analysis-modal-content" id="modalContent">
+        <div class="loading-spinner">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 <script type="text/javascript">
   // URL 파라미터에서 지역 정보 읽기
@@ -52,6 +268,369 @@
     if (franchiseTitle) {
       franchiseTitle.innerHTML = `${selectedRegion} 프랜차이즈별 분석`;
     }
+    
+    // KPI 클릭 이벤트 리스너 추가
+    const kpiElements = document.querySelectorAll('.kpi .v');
+    
+    kpiElements.forEach((element, index) => {
+      element.addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        const kpiTitle = this.parentElement.querySelector('.t').textContent;
+        openAnalysisModal(index, kpiTitle);
+      });
+    });
   });
+  
+  // 모달 열기 함수
+  function openAnalysisModal(kpiIndex, title) {
+    const modal = document.getElementById('analysisModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
+    
+    // 모달 제목 설정
+    modalTitle.textContent = `${title} 상세 분석`;
+    
+    // 로딩 스피너 표시
+    modalContent.innerHTML = `
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+      </div>
+    `;
+    
+    // 모달 표시
+    modal.classList.add('active');
+    
+    // API 호출하여 데이터 로드
+    loadAnalysisData(kpiIndex, title);
+  }
+  
+  // 모달 닫기 함수
+  function closeAnalysisModal() {
+    const modal = document.getElementById('analysisModal');
+    modal.classList.remove('active');
+  }
+  
+  // 모달 외부 클릭시 닫기
+  document.getElementById('analysisModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeAnalysisModal();
+    }
+  });
+  
+  // ESC 키로 모달 닫기
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeAnalysisModal();
+    }
+  });
+  
+  // 분석 데이터 로드 함수
+  function loadAnalysisData(kpiIndex, title) {
+    const params = new URLSearchParams();
+    
+    // 현재 필터 조건 추가
+    if (selectedRegion && selectedRegion !== '서울시 전체') {
+      params.append('region', selectedRegion);
+    }
+    
+    // KPI별 API 엔드포인트 결정
+    let apiEndpoint = '';
+    switch(kpiIndex) {
+      case 0: // 카페 수
+        apiEndpoint = 'franchise_cafe_count_analysis';
+        break;
+      case 1: // 프랜차이즈
+        apiEndpoint = 'franchise_type_analysis';
+        break;
+      case 2: // 매출액
+        apiEndpoint = 'franchise_sales_analysis';
+        break;
+      case 3: // 평균 성장률
+        apiEndpoint = 'franchise_growth_analysis';
+        break;
+      default:
+        apiEndpoint = 'franchise_cafe_count_analysis';
+    }
+    
+    const apiUrl = `/api/cafes/cafes/${apiEndpoint}/?${params.toString()}`;
+    console.log(`${title} 상세 분석 API 호출:`, apiUrl);
+    
+    fetch(apiUrl)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(`${title} 분석 데이터 수신:`, data);
+        renderAnalysisData(data, kpiIndex, title);
+      })
+      .catch(error => {
+        console.error(`${title} 분석 데이터 로딩 실패:`, error);
+        showErrorMessage();
+      });
+  }
+  
+  // 분석 데이터 렌더링 함수
+  function renderAnalysisData(data, kpiIndex, title) {
+    const modalContent = document.getElementById('modalContent');
+    let html = '';
+    
+    switch(kpiIndex) {
+      case 0: // 카페 수 분석
+        html = renderCafeCountAnalysis(data);
+        break;
+      case 1: // 프랜차이즈 분석
+        html = renderFranchiseTypeAnalysis(data);
+        break;
+      case 2: // 매출액 분석
+        html = renderSalesAnalysis(data);
+        break;
+      case 3: // 평균 성장률 분석
+        html = renderGrowthRateAnalysis(data);
+        break;
+    }
+    
+    modalContent.innerHTML = html;
+  }
+  
+  // 에러 메시지 표시 함수
+  function showErrorMessage() {
+    const modalContent = document.getElementById('modalContent');
+    modalContent.innerHTML = `
+      <div class="feed-card">
+        <h3>❌ 데이터 로딩 실패</h3>
+        <div class="feed-content">
+          죄송합니다. 분석 데이터를 불러오는 중 오류가 발생했습니다.
+          잠시 후 다시 시도해 주세요.
+        </div>
+      </div>
+    `;
+  }
+  
+  // 카페 수 분석 렌더링
+  function renderCafeCountAnalysis(data) {
+    return `
+      <div class="feed-card">
+        <h3>☕ 카페 수 분포 분석</h3>
+        <div class="feed-meta">선택된 지역의 카페 분포 현황</div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">총 카페 수</span>
+          <span class="stat-value">${data.total_count || 0}개</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">프랜차이즈 비율</span>
+          <span class="stat-value">${data.franchise_ratio || 0}%</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">개인카페 비율</span>
+          <span class="stat-value">${data.individual_ratio || 0}%</span>
+        </div>
+      </div>
+      
+      <div class="feed-card">
+        <h3>📊 규모별 분포</h3>
+        <div class="feed-meta">매장 규모별 카페 분포</div>
+        
+        <ul class="trending-list">
+          <li>
+            <span>대형 매장 (50평 이상)</span>
+            <span class="trend-up">${data.large_stores || 0}개</span>
+          </li>
+          <li>
+            <span>중형 매장 (20-50평)</span>
+            <span class="trend-up">${data.medium_stores || 0}개</span>
+          </li>
+          <li>
+            <span>소형 매장 (20평 미만)</span>
+            <span class="trend-up">${data.small_stores || 0}개</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="feed-card">
+        <h3>📈 성장 추이</h3>
+        <div class="feed-meta">최근 3년간 카페 수 변화</div>
+        
+        <div class="feed-content">
+          최근 3년간 해당 지역의 카페 수는 <strong>${data.growth_trend || 0}%</strong> 증가하였으며,
+          특히 프랜차이즈 카페가 <strong>${data.franchise_growth || 0}%</strong> 증가했습니다.
+        </div>
+      </div>
+    `;
+  }
+  
+  // 프랜차이즈 타입 분석 렌더링
+  function renderFranchiseTypeAnalysis(data) {
+    return `
+      <div class="feed-card">
+        <h3>🏢 프랜차이즈 브랜드 분석</h3>
+        <div class="feed-meta">주요 프랜차이즈 브랜드 현황</div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">프랜차이즈 매장 수</span>
+          <span class="stat-value">${data.franchise_count || 0}개</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">개인 매장 수</span>
+          <span class="stat-value">${data.individual_count || 0}개</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">브랜드 다양성</span>
+          <span class="stat-value">${data.brand_diversity || 0}개</span>
+        </div>
+      </div>
+      
+      <div class="feed-card">
+        <h3>🎯 상위 브랜드</h3>
+        <div class="feed-meta">매장 수 기준 상위 프랜차이즈</div>
+        
+        <ul class="trending-list">
+          ${(data.top_franchises || []).map(item => `
+            <li>
+              <span>${item.brand_name || '기타'}</span>
+              <span class="trend-up">${item.count || 0}개</span>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+      
+      <div class="feed-card">
+        <h3>📊 시장 점유율</h3>
+        <div class="feed-meta">프랜차이즈 vs 개인카페</div>
+        
+        <div class="feed-content">
+          선택된 지역에서 프랜차이즈가 전체 카페의 <strong>${data.franchise_market_share || 0}%</strong>를 점유하고 있으며,
+          개인카페가 <strong>${data.individual_market_share || 0}%</strong>를 차지하고 있습니다.
+        </div>
+      </div>
+    `;
+  }
+  
+  // 매출액 분석 렌더링
+  function renderSalesAnalysis(data) {
+    return `
+      <div class="feed-card">
+        <h3>💰 매출 현황 분석</h3>
+        <div class="feed-meta">추정 매출액 기반 분석</div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">총 추정 매출</span>
+          <span class="stat-value">${data.total_sales || 0}만원</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">평균 매출</span>
+          <span class="stat-value">${data.avg_sales || 0}만원</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">매출 성장률</span>
+          <span class="stat-value ${(data.sales_growth || 0) >= 0 ? '' : 'danger'}">${data.sales_growth || 0}%</span>
+        </div>
+      </div>
+      
+      <div class="feed-card">
+        <h3>📊 매출 구간별 분포</h3>
+        <div class="feed-meta">월 매출 규모별 매장 분포</div>
+        
+        <ul class="trending-list">
+          <li>
+            <span>1000만원 이상</span>
+            <span class="trend-up">${data.high_sales_stores || 0}개</span>
+          </li>
+          <li>
+            <span>500-1000만원</span>
+            <span class="trend-up">${data.mid_sales_stores || 0}개</span>
+          </li>
+          <li>
+            <span>300-500만원</span>
+            <span class="trend-up">${data.low_mid_sales_stores || 0}개</span>
+          </li>
+          <li>
+            <span>300만원 미만</span>
+            <span class="trend-down">${data.low_sales_stores || 0}개</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="feed-card">
+        <h3>🎯 매출 요인 분석</h3>
+        <div class="feed-meta">매출에 영향을 미치는 주요 요인</div>
+        
+        <div class="feed-content">
+          <div style="margin-bottom: 16px;">
+            <strong>🟢 긍정 요인:</strong> ${data.positive_factors || '유동인구 증가, 브랜드 인지도, 접근성'}
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <strong>🟡 주의 요인:</strong> ${data.caution_factors || '경쟁 증가, 임대료 상승'}
+          </div>
+          
+          <div>
+            <strong>🔴 부정 요인:</strong> ${data.negative_factors || '시장 포화, 소비 패턴 변화'}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  // 성장률 분석 렌더링
+  function renderGrowthRateAnalysis(data) {
+    return `
+      <div class="feed-card">
+        <h3>📈 성장률 분석</h3>
+        <div class="feed-meta">프랜차이즈 성장률 상세 분석</div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">평균 성장률</span>
+          <span class="stat-value">${data.avg_growth_rate || 0}%</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">전년 동기 대비</span>
+          <span class="stat-value ${(data.yoy_change || 0) >= 0 ? '' : 'danger'}">${data.yoy_change || 0}%</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">예상 성장률</span>
+          <span class="stat-value">${data.predicted_growth || 0}%</span>
+        </div>
+      </div>
+      
+      <div class="feed-card">
+        <h3>🏆 성장률 상위 브랜드</h3>
+        <div class="feed-meta">성장률 기준 상위 프랜차이즈</div>
+        
+        <ul class="trending-list">
+          ${(data.growth_leaders || []).map(item => `
+            <li>
+              <span>${item.brand_name || '기타'}</span>
+              <span class="${(item.growth_rate || 0) >= 0 ? 'trend-up' : 'trend-down'}">
+                ${item.growth_rate || 0}%
+              </span>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+      
+      <div class="feed-card">
+        <h3>🔍 성장 동력 분석</h3>
+        <div class="feed-meta">성장률에 영향을 미치는 요인</div>
+        
+        <div class="feed-content">
+          선택된 지역의 프랜차이즈 성장률은 <strong>${data.market_condition || '안정적'}</strong> 상태이며,
+          주요 성장 동력은 <strong>${data.growth_drivers || '브랜드 확장, 메뉴 다양화, 마케팅 강화'}</strong>입니다.
+        </div>
+      </div>
+    `;
+  }
 </script>
 </html>

@@ -6,6 +6,207 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>트렌드 분석</title>
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <style>
+    /* KPI 클릭 가능 스타일 */
+    .kpi .v {
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-radius: 4px;
+      padding: 2px 4px;
+    }
+    
+    .kpi .v:hover {
+      background-color: #f3f4f6;
+      transform: scale(1.05);
+    }
+    
+    /* 모달 오버레이 */
+    .analysis-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .analysis-modal-overlay.active {
+      display: flex;
+    }
+    
+    /* 모달 컨테이너 */
+    .analysis-modal {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    /* 모달 헤더 */
+    .analysis-modal-header {
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      color: white;
+      padding: 20px 24px;
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .analysis-modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 0;
+    }
+    
+    .analysis-modal-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s ease;
+    }
+    
+    .analysis-modal-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* 모달 내용 */
+    .analysis-modal-content {
+      padding: 24px;
+    }
+    
+    /* 피드 카드 스타일 */
+    .feed-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid #3b82f6;
+    }
+    
+    .feed-card h3 {
+      margin: 0 0 12px 0;
+      color: #1f2937;
+    }
+    
+    .feed-meta {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    
+    .feed-content {
+      color: #374151;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    
+    .highlight-stat {
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .stat-label {
+      font-weight: 500;
+      color: #374151;
+    }
+    
+    .stat-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #059669;
+    }
+    
+    .stat-value.warning {
+      color: #d97706;
+    }
+    
+    .stat-value.danger {
+      color: #dc2626;
+    }
+    
+    .trending-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .trending-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .trending-list li:last-child {
+      border-bottom: none;
+    }
+    
+    .trend-up {
+      color: #059669;
+    }
+    
+    .trend-down {
+      color: #dc2626;
+    }
+    
+    /* 로딩 스피너 */
+    .loading-spinner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
   <div class="card tab-pane" id="pane-trend">
@@ -29,6 +230,21 @@
       {% endfor %}
     </div>
   </div>
+
+  <!-- 분석 모달 -->
+  <div class="analysis-modal-overlay" id="analysisModal">
+    <div class="analysis-modal">
+      <div class="analysis-modal-header">
+        <h2 class="analysis-modal-title" id="modalTitle">상세 분석</h2>
+        <button class="analysis-modal-close" onclick="closeAnalysisModal()">&times;</button>
+      </div>
+      <div class="analysis-modal-content" id="modalContent">
+        <div class="loading-spinner">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 <script type="text/javascript">
   // URL 파라미터에서 지역 정보 읽기
@@ -41,6 +257,426 @@
     if (trendTitle) {
       trendTitle.innerHTML = `${selectedRegion} 트렌드 분석`;
     }
+    
+    // KPI 클릭 이벤트 리스너 추가
+    const kpiElements = document.querySelectorAll('.kpi .v');
+    
+    kpiElements.forEach((element, index) => {
+      element.addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        const kpiTitle = this.parentElement.querySelector('.t').textContent;
+        openAnalysisModal(index, kpiTitle);
+      });
+    });
   });
+  
+  // 모달 열기 함수
+  function openAnalysisModal(kpiIndex, title) {
+    const modal = document.getElementById('analysisModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
+    
+    // 모달 제목 설정
+    modalTitle.textContent = `${title} 상세 분석`;
+    
+    // 로딩 스피너 표시
+    modalContent.innerHTML = `
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+      </div>
+    `;
+    
+    // 모달 표시
+    modal.classList.add('active');
+    
+    // API 호출하여 데이터 로드
+    loadAnalysisData(kpiIndex, title);
+  }
+  
+  // 모달 닫기 함수
+  function closeAnalysisModal() {
+    const modal = document.getElementById('analysisModal');
+    modal.classList.remove('active');
+  }
+  
+  // 모달 외부 클릭시 닫기
+  document.getElementById('analysisModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeAnalysisModal();
+    }
+  });
+  
+  // ESC 키로 모달 닫기
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeAnalysisModal();
+    }
+  });
+  
+  // 분석 데이터 로드 함수
+  function loadAnalysisData(kpiIndex, title) {
+    const params = new URLSearchParams();
+    
+    // 현재 필터 조건 추가
+    if (selectedRegion && selectedRegion !== '서울시 전체') {
+      params.append('region', selectedRegion);
+    }
+    
+    // KPI별 API 엔드포인트 결정
+    let apiEndpoint = '';
+    switch(kpiIndex) {
+      case 0: // 3년 성장률
+        apiEndpoint = 'trend_three_year_growth_analysis';
+        break;
+      case 1: // 신규 사업자
+        apiEndpoint = 'trend_new_business_analysis';
+        break;
+      case 2: // 평균 생존율
+        apiEndpoint = 'trend_survival_rate_analysis';
+        break;
+      case 3: // 월 평균 매출 지수
+        apiEndpoint = 'trend_sales_index_analysis';
+        break;
+      default:
+        apiEndpoint = 'trend_three_year_growth_analysis';
+    }
+    
+    const apiUrl = `/api/cafes/cafes/${apiEndpoint}/?${params.toString()}`;
+    console.log(`${title} 상세 분석 API 호출:`, apiUrl);
+    
+    fetch(apiUrl)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(`${title} 분석 데이터 수신:`, data);
+        renderAnalysisData(data, kpiIndex, title);
+      })
+      .catch(error => {
+        console.error(`${title} 분석 데이터 로딩 실패:`, error);
+        showErrorMessage();
+      });
+  }
+  
+  // 분석 데이터 렌더링 함수
+  function renderAnalysisData(data, kpiIndex, title) {
+    const modalContent = document.getElementById('modalContent');
+    let html = '';
+    
+    switch(kpiIndex) {
+      case 0: // 3년 성장률 분석
+        html = renderThreeYearGrowthAnalysis(data);
+        break;
+      case 1: // 신규 사업자 분석
+        html = renderNewBusinessAnalysis(data);
+        break;
+      case 2: // 평균 생존율 분석
+        html = renderSurvivalRateAnalysis(data);
+        break;
+      case 3: // 월 평균 매출 지수 분석
+        html = renderSalesIndexAnalysis(data);
+        break;
+    }
+    
+    modalContent.innerHTML = html;
+  }
+  
+  // 에러 메시지 표시 함수
+  function showErrorMessage() {
+    const modalContent = document.getElementById('modalContent');
+    modalContent.innerHTML = `
+      <div class="feed-card">
+        <h3>❌ 데이터 로딩 실패</h3>
+        <div class="feed-content">
+          죄송합니다. 분석 데이터를 불러오는 중 오류가 발생했습니다.
+          잠시 후 다시 시도해 주세요.
+        </div>
+      </div>
+    `;
+  }
+  
+  // 3년 성장률 분석 렌더링
+  function renderThreeYearGrowthAnalysis(data) {
+    return `
+      <div class="feed-card">
+        <h3>📈 3년 성장률 트렌드 분석</h3>
+        <div class="feed-meta">최근 3년간 카페 업계 성장률 상세 분석</div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">3년 평균 성장률</span>
+          <span class="stat-value">${data.three_year_growth || 0}%</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">연평균 성장률</span>
+          <span class="stat-value">${data.annual_avg_growth || 0}%</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">최고 성장 연도</span>
+          <span class="stat-value">${data.peak_growth_year || '2023'}년</span>
+        </div>
+      </div>
+      
+      <div class="feed-card">
+        <h3>📊 연도별 성장률</h3>
+        <div class="feed-meta">최근 3년간 연도별 성장률 변화</div>
+        
+        <ul class="trending-list">
+          ${(data.yearly_growth || []).map(item => `
+            <li>
+              <span>${item.year || '2023'}년</span>
+              <span class="${(item.growth_rate || 0) >= 0 ? 'trend-up' : 'trend-down'}">
+                ${item.growth_rate || 0}%
+              </span>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+      
+      <div class="feed-card">
+        <h3>🎯 성장 동력</h3>
+        <div class="feed-meta">3년간 성장을 이끈 주요 요인</div>
+        
+        <div class="feed-content">
+          <div style="margin-bottom: 16px;">
+            <strong>🟢 주요 성장 동력:</strong> ${data.growth_drivers || '배달 서비스 확산, 원두 품질 향상, 공간 다양화'}
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <strong>🟡 주의 요인:</strong> ${data.caution_factors || '임대료 상승, 인건비 증가'}
+          </div>
+          
+          <div>
+            <strong>🔮 향후 전망:</strong> ${data.future_outlook || '안정적 성장세 지속 예상'}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  // 신규 사업자 분석 렌더링
+  function renderNewBusinessAnalysis(data) {
+    return `
+      <div class="feed-card">
+        <h3>🆕 신규 사업자 현황 분석</h3>
+        <div class="feed-meta">새로 진입하는 카페 사업자 분석</div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">월평균 신규 사업자</span>
+          <span class="stat-value">${data.new_businesses || 0}개</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">전년 동기 대비</span>
+          <span class="stat-value ${(data.yoy_change || 0) >= 0 ? '' : 'danger'}">${data.yoy_change || 0}%</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">성공률</span>
+          <span class="stat-value">${data.success_rate || 0}%</span>
+        </div>
+      </div>
+      
+      <div class="feed-card">
+        <h3>🏢 신규 사업자 유형</h3>
+        <div class="feed-meta">신규 진입 사업자의 유형별 분포</div>
+        
+        <ul class="trending-list">
+          <li>
+            <span>프랜차이즈</span>
+            <span class="trend-up">${data.new_franchise || 0}개</span>
+          </li>
+          <li>
+            <span>개인카페</span>
+            <span class="trend-up">${data.new_individual || 0}개</span>
+          </li>
+          <li>
+            <span>카페형 복합매장</span>
+            <span class="trend-up">${data.new_hybrid || 0}개</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="feed-card">
+        <h3>📍 신규 진입 선호 지역</h3>
+        <div class="feed-meta">신규 사업자들이 선호하는 지역</div>
+        
+        <ul class="trending-list">
+          ${(data.preferred_areas || []).map(item => `
+            <li>
+              <span>${item.area_name || '기타'}</span>
+              <span class="trend-up">${item.new_count || 0}개</span>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+      
+      <div class="feed-card">
+        <h3>💡 신규 사업자 성공 요인</h3>
+        <div class="feed-meta">성공적인 카페 창업을 위한 핵심 요소</div>
+        
+        <div class="feed-content">
+          성공하는 신규 카페의 공통점은 <strong>${data.success_factors || '차별화된 컨셉, 좋은 입지, 품질 관리'}</strong>이며,
+          특히 <strong>${data.key_success_factor || '고객 서비스'}</strong>가 가장 중요한 요소로 나타났습니다.
+        </div>
+      </div>
+    `;
+  }
+  
+  // 평균 생존율 분석 렌더링
+  function renderSurvivalRateAnalysis(data) {
+    return `
+      <div class="feed-card">
+        <h3>💪 카페 생존율 분석</h3>
+        <div class="feed-meta">카페 사업의 지속성 및 생존율 분석</div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">전체 평균 생존율</span>
+          <span class="stat-value">${data.survival_rate || 0}%</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">3년 생존율</span>
+          <span class="stat-value">${data.three_year_survival || 0}%</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">5년 생존율</span>
+          <span class="stat-value">${data.five_year_survival || 0}%</span>
+        </div>
+      </div>
+      
+      <div class="feed-card">
+        <h3>📊 유형별 생존율</h3>
+        <div class="feed-meta">카페 유형별 생존율 비교</div>
+        
+        <ul class="trending-list">
+          <li>
+            <span>대형 프랜차이즈</span>
+            <span class="trend-up">${data.franchise_survival || 0}%</span>
+          </li>
+          <li>
+            <span>개인카페</span>
+            <span class="trend-up">${data.individual_survival || 0}%</span>
+          </li>
+          <li>
+            <span>소형 프랜차이즈</span>
+            <span class="trend-up">${data.small_franchise_survival || 0}%</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="feed-card">
+        <h3>⚠️ 폐업 위험 요인</h3>
+        <div class="feed-meta">카페 폐업에 영향을 미치는 주요 요인</div>
+        
+        <ul class="trending-list">
+          <li>
+            <span>매출 부진</span>
+            <span class="trend-down">${data.low_sales_risk || 0}%</span>
+          </li>
+          <li>
+            <span>높은 임대료</span>
+            <span class="trend-down">${data.high_rent_risk || 0}%</span>
+          </li>
+          <li>
+            <span>경쟁 과열</span>
+            <span class="trend-down">${data.competition_risk || 0}%</span>
+          </li>
+        </ul>
+      </div>
+      
+      <div class="feed-card">
+        <h3>🎯 생존율 향상 방안</h3>
+        <div class="feed-meta">카페 운영 지속성을 높이는 방법</div>
+        
+        <div class="feed-content">
+          생존율이 높은 카페들의 공통적인 특징은 <strong>${data.survival_strategies || '꾸준한 품질 관리, 고객 관계 관리, 적절한 마케팅'}</strong>이며,
+          특히 <strong>${data.key_survival_factor || '지속적인 메뉴 개발'}</strong>이 중요한 것으로 나타났습니다.
+        </div>
+      </div>
+    `;
+  }
+  
+  // 매출 지수 분석 렌더링
+  function renderSalesIndexAnalysis(data) {
+    return `
+      <div class="feed-card">
+        <h3>💰 매출 지수 분석</h3>
+        <div class="feed-meta">카페 업계 매출 지수 상세 분석 (기준=100)</div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">현재 매출 지수</span>
+          <span class="stat-value">${data.sales_index || 100}</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">전월 대비</span>
+          <span class="stat-value ${(data.monthly_change || 0) >= 0 ? '' : 'danger'}">${data.monthly_change || 0}%</span>
+        </div>
+        
+        <div class="highlight-stat">
+          <span class="stat-label">전년 동월 대비</span>
+          <span class="stat-value ${(data.yearly_change || 0) >= 0 ? '' : 'danger'}">${data.yearly_change || 0}%</span>
+        </div>
+      </div>
+      
+      <div class="feed-card">
+        <h3>📊 월별 매출 지수 추이</h3>
+        <div class="feed-meta">최근 12개월 매출 지수 변화</div>
+        
+        <ul class="trending-list">
+          ${(data.monthly_index || []).map(item => `
+            <li>
+              <span>${item.month || '1'}월</span>
+              <span class="${(item.index || 100) >= 100 ? 'trend-up' : 'trend-down'}">
+                ${item.index || 100}
+              </span>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+      
+      <div class="feed-card">
+        <h3>🎯 지역별 매출 지수</h3>
+        <div class="feed-meta">지역별 매출 지수 비교</div>
+        
+        <ul class="trending-list">
+          ${(data.regional_index || []).map(item => `
+            <li>
+              <span>${item.region || '기타'}</span>
+              <span class="${(item.index || 100) >= 100 ? 'trend-up' : 'trend-down'}">
+                ${item.index || 100}
+              </span>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+      
+      <div class="feed-card">
+        <h3>📈 매출 지수 영향 요인</h3>
+        <div class="feed-meta">매출 지수에 영향을 미치는 주요 요인</div>
+        
+        <div class="feed-content">
+          <div style="margin-bottom: 16px;">
+            <strong>🟢 긍정 요인:</strong> ${data.positive_factors || '소비 심리 회복, 외식 문화 확산, 프리미엄 커피 선호'}
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <strong>🟡 중립 요인:</strong> ${data.neutral_factors || '계절적 변동, 경쟁 증가'}
+          </div>
+          
+          <div>
+            <strong>🔴 부정 요인:</strong> ${data.negative_factors || '원자재 가격 상승, 인건비 증가'}
+          </div>
+        </div>
+      </div>
+    `;
+  }
 </script>
 </html>
