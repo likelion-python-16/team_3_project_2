@@ -20,17 +20,6 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.AllowAny]
     
-    @action(detail=False, methods=['get'])
-    def template_list(self, request):
-        users = self.get_queryset()
-        context = {'users': users}
-        return render(request, 'accounts/user_list.html', context)
-    
-    @action(detail=True, methods=['get'])
-    def template_detail(self, request, pk=None):
-        user = self.get_object()
-        context = {'user': user}
-        return render(request, 'accounts/user_detail.html', context)
     
     @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
     def login(self, request):

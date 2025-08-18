@@ -5,7 +5,7 @@ from accounts.views import login_page, register_page
 from cafes.views import CafeIdViewSet
 
 urlpatterns = [
-    path("", include(('cafes.urls', 'cafes'), namespace='cafes-web')),
+    path("", include(('cafes.urls', 'cafes'), namespace='cafes-main')),
     path("login/", login_page, name="login"),
     path("register/", register_page, name="register"),
     path('admin/', admin.site.urls),
@@ -15,12 +15,10 @@ urlpatterns = [
     
     # Template-based URLs
     path('accounts/', include(('accounts.urls', 'accounts'), namespace='accounts-web')),
-    path('billing/', include(('billing.urls', 'billing'), namespace='billing-web')),
     path('cafes/', include(('cafes.urls', 'cafes'), namespace='cafes-web')),
     
     # API URLs
     path('api/accounts/', include(('accounts.urls', 'accounts'), namespace='accounts-api')),
-    path('api/billing/', include(('billing.urls', 'billing'), namespace='billing-api')),
     path('api/cafes/', include(('cafes.urls', 'cafes'), namespace='cafes-api')),
     path("api-auth/", include("rest_framework.urls")),
 ]

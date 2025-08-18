@@ -123,8 +123,15 @@
         </a>
       </div>
       <nav class="top-actions">
-        <a href="/start" class="btn btn--primary">무료로 시작하기</a>
-        <a href="/login" class="btn btn--ghost">로그인</a>
+        {% if user.is_authenticated %}
+          <!-- 로그인 상태 -->
+          <a href="/" class="btn btn--primary">대시보드</a>
+          <a href="/account/" class="btn btn--ghost">내 계정</a>
+        {% else %}
+          <!-- 로그아웃 상태 -->
+          <a href="/start" class="btn btn--primary">무료로 시작하기</a>
+          <a href="/login" class="btn btn--ghost">로그인</a>
+        {% endif %}
       </nav>
     </div>
   </header>
@@ -135,6 +142,7 @@
       <h1>📊 오늘의 상권 분석 요약</h1>
       <p>최신 골목상권 트렌드와 인사이트를 한눈에 확인하세요</p>
       <p style="font-size: 14px; opacity: 0.8;">{{ today|date:"Y년 m월 d일" }} 업데이트</p>
+      
     </div>
   </section>
 
@@ -236,8 +244,8 @@
         </div>
         
         <div class="highlight-stat">
-          <span class="stat-label">피해야 할 업종</span>
-          <span class="stat-value warning">전통 찻집, 인터넷 카페</span>
+          <span class="stat-label">피해야 할 지역</span>
+          <span class="stat-value warning">은평구, 관악구</span>
         </div>
       {% else %}
         <div class="feed-content" style="filter: blur(95px);">

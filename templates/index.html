@@ -111,7 +111,7 @@
           <!-- 로그인 상태 -->
           <div id="nav-logged-in" style="display: flex; align-items: center;">
             <span class="user-info">
-              <span>{{ user.username }}</span>님
+              <span><a href="/account/">{{ user.username }}</a></span>님
               <span class="badge">{{ user.role }}</span>
             </span>
             <form action="/api/accounts/users/logout/" method="post" style="display: inline; margin-left: 12px;">

@@ -266,7 +266,7 @@ def summary_page(request):
         
         if franchise_count > 0:
             # 해당 프랜차이즈의 지역별 분포
-            location_distribution = franchise_cafes.values('address').annotate(
+            location_distribution = franchise_cafes.values('distinct').annotate(
                 count=Count('cafe_id')
             ).order_by('-count')[:5]
             

@@ -8,17 +8,6 @@ from .serializers import (
     ResidentPopulationSerializer, CafeIdSerializer, CafeSalesSerializer,
     CafeReviewSerializer, CafeTrendAISerializer
 )
-# 인구수
-class ResidentPopulationViewSet(viewsets.ModelViewSet):
-    queryset = ResidentPopulation.objects.all().order_by("rp_key")
-    serializer_class = ResidentPopulationSerializer
-    permission_classes = [permissions.AllowAny]
-    
-    @action(detail=False, methods=['get'])
-    def template_list(self, request):
-        populations = self.get_queryset()
-        context = {'populations': populations}
-        return render(request, 'cafes/resident_population_list.html', context)
 
 class CafeIdViewSet(viewsets.ModelViewSet):
     queryset = CafeId.objects.select_related("rp_key").order_by("name")
@@ -72,12 +61,6 @@ class CafeIdViewSet(viewsets.ModelViewSet):
             'new_businesses': new_businesses,
         }
         return render(request, 'index.html', context)
-    
-    @action(detail=True, methods=['get'])
-    def template_detail(self, request, pk=None):
-        cafe = self.get_object()
-        context = {'cafe': cafe}
-        return render(request, 'cafes/cafe_detail.html', context)
     
     @action(detail=False, methods=['get'])
     def filtered_data(self, request):
@@ -213,39 +196,6 @@ class CafeIdViewSet(viewsets.ModelViewSet):
             return 'warning'
         else:
             return 'risk'
-
-class CafeSalesViewSet(viewsets.ModelViewSet):
-    queryset = CafeSales.objects.select_related("cafe").order_by("-date")
-    serializer_class = CafeSalesSerializer
-    permission_classes = [permissions.AllowAny]
-    
-    @action(detail=False, methods=['get'])
-    def template_list(self, request):
-        sales = self.get_queryset()
-        context = {'sales': sales}
-        return render(request, 'cafes/cafe_sales_list.html', context)
-
-class CafeReviewViewSet(viewsets.ModelViewSet):
-    queryset = CafeReview.objects.select_related("cafe").order_by("-review_id")
-    serializer_class = CafeReviewSerializer
-    permission_classes = [permissions.AllowAny]
-    
-    @action(detail=False, methods=['get'])
-    def template_list(self, request):
-        reviews = self.get_queryset()
-        context = {'reviews': reviews}
-        return render(request, 'cafes/cafe_review_list.html', context)
-
-class CafeTrendAIViewSet(viewsets.ModelViewSet):
-    queryset = CafeTrendAI.objects.select_related("rp_key").order_by("-trend_id")
-    serializer_class = CafeTrendAISerializer
-    permission_classes = [permissions.AllowAny]
-    
-    @action(detail=False, methods=['get'])
-    def template_list(self, request):
-        trends = self.get_queryset()
-        context = {'trends': trends}
-        return render(request, 'cafes/cafe_trend_list.html', context)
 
 
 def pane_map_view(request):
