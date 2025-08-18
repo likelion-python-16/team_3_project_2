@@ -268,7 +268,7 @@
         
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 8px;">
           {% if not is_authenticated %}
-            <p style="margin: 0; font-weight: 500;">로그인 후 이용하세요</p>
+            <p style="margin: 0 0 20px 0; font-weight: 500;">로그인 후 이용하세요</p>
             <a href="/login" class="btn btn--primary" style="margin-top: 8px; font-size: 14px;">로그인</a>
           {% else %}
             <p style="margin: 0 0 10px 0; font-weight: 500;">프리미엄 플랜에서 확인하세요</p>
@@ -379,10 +379,10 @@
         
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 8px;">
           {% if not is_authenticated %}
-            <p style="margin: 0; font-weight: 500;">로그인 후 이용하세요</p>
-            <a href="/login" class="btn btn--primary" style="margin-top: 8px; font-size: 14px;">로그인</a>
+            <p style="margin: 0 0 20px 0;  font-weight: 500;">로그인 후 이용하세요</p>
+            <a href="/login" class="btn btn--primary" style="margin-top: 10px; font-size: 14px;">로그인</a>
           {% else %}
-            <p style="margin: 0 0 10px 0; font-weight: 500;">프리미엄 플랜에서 확인하세요</p>
+            <p style="margin: 0 0 20px 0; font-weight: 500;">프리미엄 플랜에서 확인하세요</p>
             <a href="/start" class="btn btn--primary" style="margin-top: 10px; font-size: 14px;">업그레이드</a>
           {% endif %}
         </div>

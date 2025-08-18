@@ -7,7 +7,8 @@ from .views import (CafeIdViewSet,
 app_name = 'cafes'
 
 # Router for ViewSets (both API and template actions)
-
+router = DefaultRouter()
+router.register(r'cafes', CafeIdViewSet)
 
 # Manual URL patterns for simpler template access
 template_patterns = [
@@ -20,4 +21,4 @@ template_patterns = [
 ]
 
 # Combine template patterns and router URLs
-urlpatterns = template_patterns 
+urlpatterns = template_patterns + router.urls 

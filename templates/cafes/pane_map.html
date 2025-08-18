@@ -6,6 +6,207 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>지도 분석</title>
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <style>
+    /* KPI 클릭 가능 스타일 */
+    .kpi .v {
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-radius: 4px;
+      padding: 2px 4px;
+    }
+    
+    .kpi .v:hover {
+      background-color: #f3f4f6;
+      transform: scale(1.05);
+    }
+    
+    /* 모달 오버레이 */
+    .analysis-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .analysis-modal-overlay.active {
+      display: flex;
+    }
+    
+    /* 모달 컨테이너 */
+    .analysis-modal {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    /* 모달 헤더 */
+    .analysis-modal-header {
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      color: white;
+      padding: 20px 24px;
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .analysis-modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 0;
+    }
+    
+    .analysis-modal-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s ease;
+    }
+    
+    .analysis-modal-close:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* 모달 내용 */
+    .analysis-modal-content {
+      padding: 24px;
+    }
+    
+    /* 피드 카드 스타일 (summary.html과 동일) */
+    .feed-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid #3b82f6;
+    }
+    
+    .feed-card h3 {
+      margin: 0 0 12px 0;
+      color: #1f2937;
+    }
+    
+    .feed-meta {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    
+    .feed-content {
+      color: #374151;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    
+    .highlight-stat {
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .stat-label {
+      font-weight: 500;
+      color: #374151;
+    }
+    
+    .stat-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #059669;
+    }
+    
+    .stat-value.warning {
+      color: #d97706;
+    }
+    
+    .stat-value.danger {
+      color: #dc2626;
+    }
+    
+    .trending-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .trending-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .trending-list li:last-child {
+      border-bottom: none;
+    }
+    
+    .trend-up {
+      color: #059669;
+    }
+    
+    .trend-down {
+      color: #dc2626;
+    }
+    
+    /* 로딩 스피너 */
+    .loading-spinner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
   <div class="card tab-pane" id="pane-map" style="position: relative;">
@@ -23,6 +224,21 @@
       <div class="kpi"><div class="t">전체 사업자</div><div class="v">{{ total_businesses_by_region }}</div></div>
       <div class="kpi"><div class="t">평균 성장률</div><div class="v up">{{ avg_growth_rate }}</div><div class="s">선택한 지역 평균</div></div>
       <div class="kpi"><div class="t">위험 지역</div><div class="v warn">{{ risk_areas_count }}</div></div>
+    </div>
+  </div>
+
+  <!-- 분석 모달 -->
+  <div class="analysis-modal-overlay" id="analysisModal">
+    <div class="analysis-modal">
+      <div class="analysis-modal-header">
+        <h2 class="analysis-modal-title" id="modalTitle">상세 분석</h2>
+        <button class="analysis-modal-close" onclick="closeAnalysisModal()">&times;</button>
+      </div>
+      <div class="analysis-modal-content" id="modalContent">
+        <div class="loading-spinner">
+          <div class="spinner"></div>
+        </div>
+      </div>
     </div>
   </div>
 </body>
@@ -124,6 +340,402 @@
     };
   
     var map = new kakao.maps.Map(container, options); //지도 생성 및 객체 리턴
+    
+    // KPI 클릭 이벤트 리스너 추가
+    document.addEventListener('DOMContentLoaded', function() {
+      // KPI 요소들 선택
+      const kpiElements = document.querySelectorAll('.kpi .v');
+      
+      kpiElements.forEach((element, index) => {
+        element.addEventListener('click', function(event) {
+          event.stopPropagation();
+          event.preventDefault();
+          const kpiTitle = this.parentElement.querySelector('.t').textContent;
+          openAnalysisModal(index, kpiTitle);
+        });
+      });
+    });
+    
+    // 모달 열기 함수
+    function openAnalysisModal(kpiIndex, title) {
+      const modal = document.getElementById('analysisModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalContent = document.getElementById('modalContent');
+      
+      // 모달 제목 설정
+      modalTitle.textContent = `${title} 상세 분석`;
+      
+      // 로딩 스피너 표시
+      modalContent.innerHTML = `
+        <div class="loading-spinner">
+          <div class="spinner"></div>
+        </div>
+      `;
+      
+      // 모달 표시
+      modal.classList.add('active');
+      
+      // API 호출하여 데이터 로드
+      loadAnalysisData(kpiIndex, title);
+    }
+    
+    // 모달 닫기 함수
+    function closeAnalysisModal() {
+      const modal = document.getElementById('analysisModal');
+      modal.classList.remove('active');
+    }
+    
+    // 모달 외부 클릭시 닫기
+    document.getElementById('analysisModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeAnalysisModal();
+      }
+    });
+    
+    // ESC 키로 모달 닫기
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeAnalysisModal();
+      }
+    });
+    
+    // 분석 데이터 로드 함수
+    function loadAnalysisData(kpiIndex, title) {
+      const params = new URLSearchParams();
+      
+      // 현재 필터 조건 추가
+      if (selectedRegion && selectedRegion !== '서울시 전체') {
+        params.append('region', selectedRegion);
+      }
+      if (selectedMajorCategory && selectedMajorCategory !== 'type_all') {
+        params.append('major_category', selectedMajorCategory);
+      }
+      if (selectedMidCategory && selectedMidCategory !== '전체') {
+        params.append('mid_category', selectedMidCategory);
+      }
+      
+      // KPI별 API 엔드포인트 결정
+      let apiEndpoint = '';
+      switch(kpiIndex) {
+        case 0: // 표시된 상권 수
+          apiEndpoint = 'store_count_analysis';
+          break;
+        case 1: // 전체 사업자
+          apiEndpoint = 'business_analysis';
+          break;
+        case 2: // 평균 성장률
+          apiEndpoint = 'growth_rate_analysis';
+          break;
+        case 3: // 위험 지역
+          apiEndpoint = 'risk_area_analysis';
+          break;
+        default:
+          apiEndpoint = 'store_count_analysis';
+      }
+      
+      const apiUrl = `/api/cafes/cafes/${apiEndpoint}/?${params.toString()}`;
+      console.log(`${title} 상세 분석 API 호출:`, apiUrl);
+      
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log(`${title} 분석 데이터 수신:`, data);
+          renderAnalysisData(data, kpiIndex, title);
+        })
+        .catch(error => {
+          console.error(`${title} 분석 데이터 로딩 실패:`, error);
+          showErrorMessage();
+        });
+    }
+    
+    // 분석 데이터 렌더링 함수
+    function renderAnalysisData(data, kpiIndex, title) {
+      const modalContent = document.getElementById('modalContent');
+      let html = '';
+      
+      switch(kpiIndex) {
+        case 0: // 표시된 상권 수 분석
+          html = renderStoreCountAnalysis(data);
+          break;
+        case 1: // 전체 사업자 분석
+          html = renderBusinessAnalysis(data);
+          break;
+        case 2: // 평균 성장률 분석
+          html = renderGrowthRateAnalysis(data);
+          break;
+        case 3: // 위험 지역 분석
+          html = renderRiskAreaAnalysis(data);
+          break;
+      }
+      
+      modalContent.innerHTML = html;
+    }
+    
+    // 에러 메시지 표시 함수
+    function showErrorMessage() {
+      const modalContent = document.getElementById('modalContent');
+      modalContent.innerHTML = `
+        <div class="feed-card">
+          <h3>❌ 데이터 로딩 실패</h3>
+          <div class="feed-content">
+            죄송합니다. 분석 데이터를 불러오는 중 오류가 발생했습니다.
+            잠시 후 다시 시도해 주세요.
+          </div>
+        </div>
+      `;
+    }
+    
+    // 상권 수 분석 렌더링
+    function renderStoreCountAnalysis(data) {
+      return `
+        <div class="feed-card">
+          <h3>📊 상권 분포 분석</h3>
+          <div class="feed-meta">지역별 카페 상권 분포 현황</div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">총 상권 수</span>
+            <span class="stat-value">${data.total_count || 0}개</span>
+          </div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">프랜차이즈 비율</span>
+            <span class="stat-value">${data.franchise_ratio || 0}%</span>
+          </div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">개인카페 비율</span>
+            <span class="stat-value">${data.individual_ratio || 0}%</span>
+          </div>
+        </div>
+        
+        <div class="feed-card">
+          <h3>🏢 업종별 분포</h3>
+          <div class="feed-meta">프랜차이즈 타입별 상권 분포</div>
+          
+          <ul class="trending-list">
+            ${(data.franchise_distribution || []).map(item => `
+              <li>
+                <span>${item.franchise_type || '기타'}</span>
+                <span class="trend-up">${item.count || 0}개</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+        
+        <div class="feed-card">
+          <h3>📍 지역별 현황</h3>
+          <div class="feed-meta">구별 카페 상권 분포</div>
+          
+          <ul class="trending-list">
+            ${(data.district_distribution || []).map(item => `
+              <li>
+                <span>${item.district || '기타'}</span>
+                <span class="trend-up">${item.count || 0}개</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      `;
+    }
+    
+    // 사업자 분석 렌더링
+    function renderBusinessAnalysis(data) {
+      return `
+        <div class="feed-card">
+          <h3>🏪 사업자 현황 분석</h3>
+          <div class="feed-meta">전체 사업자 운영 현황</div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">전체 사업자 수</span>
+            <span class="stat-value">${data.total_businesses || 0}개</span>
+          </div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">평균 운영 기간</span>
+            <span class="stat-value">${data.avg_operation_period || 0}개월</span>
+          </div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">신규 사업자</span>
+            <span class="stat-value">${data.new_businesses || 0}개</span>
+          </div>
+        </div>
+        
+        <div class="feed-card">
+          <h3>💰 매출 구간별 분포</h3>
+          <div class="feed-meta">월 매출 규모별 사업자 분포</div>
+          
+          <ul class="trending-list">
+            <li>
+              <span>1000만원 이상</span>
+              <span class="trend-up">${data.high_sales_count || 0}개</span>
+            </li>
+            <li>
+              <span>500-1000만원</span>
+              <span class="trend-up">${data.mid_sales_count || 0}개</span>
+            </li>
+            <li>
+              <span>500만원 미만</span>
+              <span class="trend-down">${data.low_sales_count || 0}개</span>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="feed-card">
+          <h3>⚠️ 운영 위험도</h3>
+          <div class="feed-meta">사업자별 운영 위험도 분석</div>
+          
+          <div class="feed-content">
+            <span class="tag">위험 요인</span>
+            저조한 매출, 높은 임대료, 경쟁 과열 등의 요인으로 
+            <strong>${data.risk_business_count || 0}개</strong> 사업자가 위험 상태입니다.
+          </div>
+        </div>
+      `;
+    }
+    
+    // 성장률 분석 렌더링
+    function renderGrowthRateAnalysis(data) {
+      return `
+        <div class="feed-card">
+          <h3>📈 성장률 트렌드 분석</h3>
+          <div class="feed-meta">지역 평균 성장률 상세 분석</div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">현재 평균 성장률</span>
+            <span class="stat-value">${data.current_growth_rate || 0}%</span>
+          </div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">전년 동기 대비</span>
+            <span class="stat-value ${(data.yoy_change || 0) >= 0 ? '' : 'danger'}">${data.yoy_change || 0}%</span>
+          </div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">예상 성장률</span>
+            <span class="stat-value">${data.predicted_growth_rate || 0}%</span>
+          </div>
+        </div>
+        
+        <div class="feed-card">
+          <h3>🎯 업종별 성장률</h3>
+          <div class="feed-meta">프랜차이즈 타입별 성장률 비교</div>
+          
+          <ul class="trending-list">
+            ${(data.franchise_growth || []).map(item => `
+              <li>
+                <span>${item.franchise_type || '기타'}</span>
+                <span class="${(item.growth_rate || 0) >= 0 ? 'trend-up' : 'trend-down'}">
+                  ${item.growth_rate || 0}%
+                </span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+        
+        <div class="feed-card">
+          <h3>🔍 성장 요인 분석</h3>
+          <div class="feed-meta">성장률에 영향을 미치는 주요 요인</div>
+          
+          <div class="feed-content">
+            <div style="margin-bottom: 16px;">
+              <strong>🟢 긍정 요인:</strong> ${data.positive_factors || '인구 유입, 교통 발달, 상권 활성화'}
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+              <strong>🟡 주의 요인:</strong> ${data.caution_factors || '임대료 상승, 경쟁 증가'}
+            </div>
+            
+            <div>
+              <strong>🔴 부정 요인:</strong> ${data.negative_factors || '인구 감소, 유동인구 감소'}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    // 위험 지역 분석 렌더링
+    function renderRiskAreaAnalysis(data) {
+      return `
+        <div class="feed-card">
+          <h3>⚠️ 위험 지역 현황</h3>
+          <div class="feed-meta">카페 창업 위험 지역 분석</div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">총 위험 지역</span>
+            <span class="stat-value danger">${data.total_risk_areas || 0}곳</span>
+          </div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">고위험 지역</span>
+            <span class="stat-value danger">${data.high_risk_areas || 0}곳</span>
+          </div>
+          
+          <div class="highlight-stat">
+            <span class="stat-label">중위험 지역</span>
+            <span class="stat-value warning">${data.medium_risk_areas || 0}곳</span>
+          </div>
+        </div>
+        
+        <div class="feed-card">
+          <h3>📋 위험 지역 목록</h3>
+          <div class="feed-meta">위험도 순위별 지역 현황</div>
+          
+          <ul class="trending-list">
+            ${(data.risk_area_list || []).map(item => `
+              <li>
+                <span>${item.area_name || '알 수 없음'}</span>
+                <span class="stat-value ${item.risk_level === 'high' ? 'danger' : item.risk_level === 'medium' ? 'warning' : ''}">
+                  ${item.risk_score || 0}점
+                </span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+        
+        <div class="feed-card">
+          <h3>🎯 위험 요인 분석</h3>
+          <div class="feed-meta">위험 지역의 주요 원인</div>
+          
+          <div class="feed-content">
+            <div style="margin-bottom: 16px;">
+              <strong>🏢 과도한 경쟁:</strong> 카페 밀도가 높아 경쟁이 심한 지역
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+              <strong>💰 높은 임대료:</strong> 임대료 대비 매출이 부족한 지역
+            </div>
+            
+            <div style="margin-bottom: 16px;">
+              <strong>👥 유동인구 부족:</strong> 고객 유입이 적은 지역
+            </div>
+            
+            <div>
+              <strong>📉 매출 감소:</strong> 지속적으로 매출이 하락하는 지역
+            </div>
+          </div>
+        </div>
+        
+        <div class="feed-card">
+          <h3>💡 대안 지역 추천</h3>
+          <div class="feed-meta">안정적인 창업 가능 지역</div>
+          
+          <ul class="trending-list">
+            ${(data.alternative_areas || []).map(item => `
+              <li>
+                <span>${item.area_name || '추천 지역'}</span>
+                <span class="trend-up">${item.safety_score || 0}점</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+      `;
+    }
     
   </script>
 </html>
