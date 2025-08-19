@@ -186,7 +186,7 @@
       <div class="payment-info">
         <div class="info-row">
           <span class="info-label">상품명</span>
-          <span class="info-value" id="orderName">프리미엄 플랜 1개월</span>
+          <span class="info-value" id="orderName">프리미엄 플랜</span>
         </div>
         <div class="info-row">
           <span class="info-label">주문번호</span>
@@ -228,6 +228,20 @@
     const paymentKey = urlParams.get('paymentKey');
     const amount = urlParams.get('amount');
     
+    // 구독 개월 수 추출 함수
+    function extractSubscriptionMonths(orderId, amount) {
+      // 금액으로 구독 기간 추정
+      const amountValue = parseInt(amount);
+      if (amountValue === 9500) {
+        return 1;
+      } else if (amountValue === 45600) {
+        return 6;
+      } else if (amountValue === 57000) {
+        return 12;
+      }
+      return 1; // 기본값
+    }
+    
     // 결제 정보 표시
     if (orderId) {
       document.getElementById('orderId').textContent = orderId;
@@ -245,6 +259,10 @@
     
     if (amount) {
       document.getElementById('amount').textContent = '₩' + parseInt(amount).toLocaleString();
+      
+      // 구독 기간 동적 표시
+      const months = extractSubscriptionMonths(orderId, amount);
+      document.getElementById('orderName').textContent = `프리미엄 플랜 ${months}개월`;
     }
     
     // 디버깅 로그

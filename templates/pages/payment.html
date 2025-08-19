@@ -221,6 +221,133 @@
       flex-wrap: wrap !important;
       gap: 8px !important;
     }
+    
+    /* 구독 옵션 스타일 */
+    .subscription-options {
+      margin-bottom: 24px;
+    }
+    
+    .option-card {
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .option-card:hover {
+      border-color: #10b981;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+    }
+    
+    .option-card input[type="radio"] {
+      display: none;
+    }
+    
+    .option-card input[type="radio"]:checked + label {
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+      border-color: #10b981;
+    }
+    
+    .option-card input[type="radio"]:checked + label::before {
+      content: '✓';
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 24px;
+      height: 24px;
+      background: #10b981;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    .option-card label {
+      display: block;
+      padding: 20px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .option-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .option-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #374151;
+    }
+    
+    .option-price {
+      font-size: 20px;
+      font-weight: bold;
+      color: #059669;
+    }
+    
+    .option-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .monthly-price {
+      font-size: 14px;
+      color: #6b7280;
+    }
+    
+    .discount-badge {
+      background: #fbbf24;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .discount-badge.popular {
+      background: #ef4444;
+      position: relative;
+    }
+    
+    .discount-badge.popular::after {
+      content: '인기';
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #dc2626;
+      color: white;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+    
+    .savings {
+      font-size: 12px;
+      color: #059669;
+      font-weight: bold;
+      text-align: right;
+    }
+    
+    .plan-features-section {
+      border-top: 1px solid #e5e7eb;
+      padding-top: 20px;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -255,13 +382,55 @@
       <div class="order-summary">
         <h2>주문 요약</h2>
         
-        <div class="plan-card">
-          <h3 class="plan-title">프리미엄 플랜</h3>
-          <div class="plan-price">
-            ₩9,500
-            <span style="font-size: 16px; color: #6b7280;">/월</span>
+        <div class="subscription-options">
+          <h3 style="margin-bottom: 24px; color: #374151;">구독 기간 선택</h3>
+          
+          <div class="option-card" data-duration="1" data-price="9500">
+            <input type="radio" id="plan-1month" name="subscription-plan" value="1" checked>
+            <label for="plan-1month">
+              <div class="option-header">
+                <span class="option-title">1개월</span>
+                <span class="option-price">₩9,500</span>
+              </div>
+              <div class="option-details">
+                <span class="monthly-price">월 ₩9,500</span>
+              </div>
+            </label>
           </div>
           
+          <div class="option-card" data-duration="6" data-price="45600">
+            <input type="radio" id="plan-6month" name="subscription-plan" value="6">
+            <label for="plan-6month">
+              <div class="option-header">
+                <span class="option-title">6개월</span>
+                <span class="option-price">₩45,600</span>
+              </div>
+              <div class="option-details">
+                <span class="monthly-price">월 ₩7,600</span>
+                <span class="discount-badge">20% 할인</span>
+              </div>
+              <div class="savings">₩11,400 절약</div>
+            </label>
+          </div>
+          
+          <div class="option-card" data-duration="12" data-price="57000">
+            <input type="radio" id="plan-12month" name="subscription-plan" value="12">
+            <label for="plan-12month">
+              <div class="option-header">
+                <span class="option-title">12개월</span>
+                <span class="option-price">₩57,000</span>
+              </div>
+              <div class="option-details">
+                <span class="monthly-price">월 ₩4,750</span>
+                <span class="discount-badge popular">50% 할인</span>
+              </div>
+              <div class="savings">₩57,000 절약</div>
+            </label>
+          </div>
+        </div>
+        
+        <div class="plan-features-section">
+          <h4 style="margin: 20px 0 16px 0; color: #374151;">포함된 기능</h4>
           <ul class="plan-features">
             <li>무제한 분석 조회</li>
             <li>상세 지역별 분석</li>
@@ -274,8 +443,20 @@
         
         <div class="price-breakdown">
           <div class="price-row">
-            <span>프리미엄 플랜 (1개월)</span>
-            <span>₩9,500</span>
+            <span id="plan-description">프리미엄 플랜 (1개월)</span>
+            <span id="plan-price-display">₩9,500</span>
+          </div>
+          <div class="price-row" id="discount-row" style="display: none;">
+            <span>할인</span>
+            <span id="discount-amount">-₩0</span>
+          </div>
+          <div class="price-row">
+            <span>구독 기간</span>
+            <span id="subscription-period">오늘부터 1개월</span>
+          </div>
+          <div class="price-row">
+            <span>구독 만료일</span>
+            <span id="expiry-date">계산 중...</span>
           </div>
           <div class="price-row">
             <span>부가세</span>
@@ -283,7 +464,7 @@
           </div>
           <div class="price-row total">
             <span>총 결제 금액</span>
-            <span>₩9,500</span>
+            <span id="total-amount">₩9,500</span>
           </div>
         </div>
         
@@ -315,7 +496,7 @@
         <div id="agreement"></div>
         
         <button id="payment-button" class="btn-payment" disabled>
-          결제하기 (₩9,500)
+          결제하기 (<span id="payment-button-amount">₩9,500</span>)
         </button> 
         
         <div class="security-info">
@@ -330,6 +511,127 @@
     // 디버깅 로그 함수
     function debugLog(step, data) {
       console.log(`[토스페이먼츠] ${step}:`, data);
+    }
+    
+    // 구독 옵션 데이터
+    const subscriptionPlans = {
+      1: { duration: 1, price: 9500, originalPrice: 9500, discount: 0, name: "1개월" },
+      6: { duration: 6, price: 45600, originalPrice: 57000, discount: 20, name: "6개월" },
+      12: { duration: 12, price: 57000, originalPrice: 114000, discount: 50, name: "12개월" }
+    };
+    
+    // 현재 선택된 플랜 (기본값: 1개월)
+    let currentPlan = subscriptionPlans[1];
+    
+    // 가격 포맷 함수
+    function formatPrice(price) {
+      return '₩' + price.toLocaleString();
+    }
+    
+    // 날짜 포맷 함수 (YYYY년 MM월 DD일 형식)
+    function formatDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}년 ${month}월 ${day}일`;
+    }
+    
+    // 구독 만료일 계산 함수
+    function calculateExpiryDate(months) {
+      const today = new Date();
+      const expiryDate = new Date(today);
+      expiryDate.setMonth(today.getMonth() + months);
+      return expiryDate;
+    }
+    
+    // 구독 기간 텍스트 생성 함수
+    function getSubscriptionPeriodText(months) {
+      if (months === 1) {
+        return '오늘부터 1개월';
+      } else {
+        return `오늘부터 ${months}개월`;
+      }
+    }
+    
+    // UI 업데이트 함수
+    async function updatePriceDisplay(planData) {
+      // 플랜 설명 업데이트
+      const planDescription = document.getElementById('plan-description');
+      if (planDescription) {
+        planDescription.textContent = `프리미엄 플랜 (${planData.name})`;
+      }
+      
+      // 플랜 가격 업데이트
+      const planPriceDisplay = document.getElementById('plan-price-display');
+      if (planPriceDisplay) {
+        planPriceDisplay.textContent = formatPrice(planData.price);
+      }
+      
+      // 할인 행 표시/숨김
+      const discountRow = document.getElementById('discount-row');
+      const discountAmount = document.getElementById('discount-amount');
+      if (planData.discount > 0) {
+        if (discountRow) discountRow.style.display = 'flex';
+        if (discountAmount) {
+          const discountValue = planData.originalPrice - planData.price;
+          discountAmount.textContent = '-' + formatPrice(discountValue);
+        }
+      } else {
+        if (discountRow) discountRow.style.display = 'none';
+      }
+      
+      // 총 결제 금액 업데이트
+      const totalAmount = document.getElementById('total-amount');
+      if (totalAmount) {
+        totalAmount.textContent = formatPrice(planData.price);
+      }
+      
+      // 결제 버튼 금액 업데이트
+      const paymentButtonAmount = document.getElementById('payment-button-amount');
+      if (paymentButtonAmount) {
+        paymentButtonAmount.textContent = formatPrice(planData.price);
+      }
+      
+      // 구독 기간 업데이트
+      const subscriptionPeriod = document.getElementById('subscription-period');
+      if (subscriptionPeriod) {
+        subscriptionPeriod.textContent = getSubscriptionPeriodText(planData.duration);
+      }
+      
+      // 구독 만료일 업데이트
+      const expiryDate = document.getElementById('expiry-date');
+      if (expiryDate) {
+        const expiryDateValue = calculateExpiryDate(planData.duration);
+        expiryDate.textContent = formatDate(expiryDateValue);
+      }
+      
+      // 토스 위젯 금액 업데이트
+      await updateWidgetAmount(planData.price);
+      
+      debugLog('가격 업데이트', {
+        plan: planData.name,
+        price: planData.price,
+        discount: planData.discount,
+        duration: planData.duration
+      });
+    }
+    
+    // 구독 옵션 선택 이벤트 처리
+    function initSubscriptionOptions() {
+      const radioButtons = document.querySelectorAll('input[name="subscription-plan"]');
+      
+      radioButtons.forEach(radio => {
+        radio.addEventListener('change', async function() {
+          if (this.checked) {
+            const duration = parseInt(this.value);
+            currentPlan = subscriptionPlans[duration];
+            await updatePriceDisplay(currentPlan);
+            debugLog('구독 플랜 변경', currentPlan);
+          }
+        });
+      });
+      
+      debugLog('구독 옵션 초기화', '완료');
     }
     
     // customerKey 생성 함수
@@ -460,11 +762,35 @@
       }
     }
     
+    // 전역 변수로 위젯 저장
+    let tossPaymentsWidgets = null;
+    
+    // 위젯 금액 업데이트 함수
+    async function updateWidgetAmount(amount) {
+      if (tossPaymentsWidgets) {
+        try {
+          await tossPaymentsWidgets.setAmount({
+            currency: "KRW",
+            value: amount,
+          });
+          debugLog('위젯 금액 업데이트', `${amount}원 설정 성공`);
+        } catch (error) {
+          debugLog('위젯 금액 업데이트 오류', error);
+        }
+      }
+    }
+    
     // DOM이 로드된 후 실행
     document.addEventListener('DOMContentLoaded', async function() {
       debugLog('초기화 시작', 'DOM 로드 완료');
       
       try {
+        // 0. 구독 옵션 초기화
+        initSubscriptionOptions();
+        
+        // 0-1. 초기 구독 기간 정보 설정
+        await updatePriceDisplay(currentPlan);
+        
         // 1. 사전 체크
         checkTossPaymentsSDK();
         checkRequiredElements();
@@ -484,22 +810,21 @@
         
         // 3. 위젯 생성
         const customerKey = generateCustomerKey();
-        let widgets;
         try {
-          widgets = tossPayments.widgets({ customerKey });
+          tossPaymentsWidgets = tossPayments.widgets({ customerKey });
           debugLog('위젯 생성', '성공');
         } catch (widgetError) {
           debugLog('위젯 생성 오류', widgetError);
           throw new Error('결제 위젯 생성에 실패했습니다.');
         }
         
-        // 4. 결제 금액 설정
+        // 4. 결제 금액 설정 (초기값: 1개월 가격)
         try {
-          await widgets.setAmount({
+          await tossPaymentsWidgets.setAmount({
             currency: "KRW",
-            value: 9500,
+            value: currentPlan.price,
           });
-          debugLog('금액 설정', '9500원 설정 성공');
+          debugLog('금액 설정', `${currentPlan.price}원 설정 성공`);
         } catch (amountError) {
           debugLog('금액 설정 오류', amountError);
           throw new Error('결제 금액 설정에 실패했습니다.');
@@ -514,11 +839,11 @@
         // 6. UI 렌더링
         try {
           await Promise.all([
-            widgets.renderPaymentMethods({
+            tossPaymentsWidgets.renderPaymentMethods({
               selector: "#payment-method",
               variantKey: "DEFAULT",
             }),
-            widgets.renderAgreement({ 
+            tossPaymentsWidgets.renderAgreement({ 
               selector: "#agreement", 
               variantKey: "AGREEMENT" 
             }),
@@ -555,7 +880,7 @@
               const orderId = generateOrderId();
               const paymentData = {
                 orderId: orderId,
-                orderName: "프리미엄 플랜 1개월",
+                orderName: `프리미엄 플랜 ${currentPlan.name}`,
                 successUrl: window.location.protocol + '//' + window.location.host + "/success",
                 failUrl: window.location.protocol + '//' + window.location.host + "/fail",
                 customerEmail: "test@example.com",
@@ -565,7 +890,7 @@
               
               debugLog('결제 데이터', paymentData);
               
-              await widgets.requestPayment(paymentData);
+              await tossPaymentsWidgets.requestPayment(paymentData);
               debugLog('결제 요청', '결제창 뜨움');
               
             } catch (paymentError) {

@@ -260,6 +260,29 @@ def payment_success_api(request):
                 'error': '이미 처리된 결제입니다.'
             }, status=400)
         
+        # orderName에서 구독 개월 수 추출
+        order_name = payment_data.get('orderName', '')
+        subscription_months = 1  # 기본값
+        
+        try:
+            if '1개월' in order_name:
+                subscription_months = 1
+            elif '6개월' in order_name:
+                subscription_months = 6
+            elif '12개월' in order_name:
+                subscription_months = 12
+            else:
+                # 정규표현식으로 숫자 추출 시도
+                import re
+                match = re.search(r'(\d+)개월', order_name)
+                if match:
+                    subscription_months = int(match.group(1))
+        except Exception as e:
+            print(f"[DEBUG] 구독 개월 수 추출 오류: {e}, orderName: {order_name}")
+            subscription_months = 1
+        
+        print(f"[DEBUG] 추출된 구독 개월 수: {subscription_months}, orderName: {order_name}")
+        
         # Payment 모델에 저장
         print(f"[DEBUG] Payment 모델 저장 시작 - user: {user}, amount: {amount}")
         
@@ -269,7 +292,7 @@ def payment_success_api(request):
             payment_key=payment_key,
             order_id=order_id,
             status='completed',
-            subscription_months=1,  # 기본 1개월
+            subscription_months=subscription_months,
             payment_method=payment_data.get('method', ''),
             approved_at=timezone.now()
         )
