@@ -1,0 +1,315 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>결제 실패 - 골목상권 빅데이터 분석</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  
+  <style>
+    .fail-hero {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      padding: 80px 0;
+      text-align: center;
+    }
+    
+    .fail-container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    
+    .fail-card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .fail-icon {
+      font-size: 64px;
+      color: #ef4444;
+      margin-bottom: 24px;
+    }
+    
+    .fail-title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #111827;
+      margin-bottom: 16px;
+    }
+    
+    .fail-message {
+      font-size: 16px;
+      color: #6b7280;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    
+    .error-info {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+      text-align: left;
+    }
+    
+    .error-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding: 8px 0;
+    }
+    
+    .error-row:last-child {
+      margin-bottom: 0;
+    }
+    
+    .error-label {
+      color: #991b1b;
+      font-weight: 500;
+    }
+    
+    .error-value {
+      color: #dc2626;
+      font-weight: 500;
+    }
+    
+    .btn-primary {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin: 8px;
+    }
+    
+    .btn-primary:hover {
+      background: #059669;
+      color: white;
+      text-decoration: none;
+    }
+    
+    .btn-secondary {
+      background: white;
+      color: #374151;
+      border: 1px solid #d1d5db;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 8px;
+    }
+    
+    .btn-secondary:hover {
+      background: #f9fafb;
+      color: #374151;
+      text-decoration: none;
+    }
+    
+    .btn-retry {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin: 8px;
+    }
+    
+    .btn-retry:hover {
+      background: #dc2626;
+      color: white;
+      text-decoration: none;
+    }
+    
+    .help-info {
+      background: #f0f9ff;
+      border: 1px solid #e0f2fe;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+    
+    .help-info h3 {
+      color: #0369a1;
+      margin: 0 0 16px 0;
+      font-size: 18px;
+    }
+    
+    .help-info ul {
+      margin: 0;
+      padding-left: 20px;
+      color: #0369a1;
+    }
+    
+    .help-info li {
+      margin-bottom: 8px;
+    }
+    
+    .contact-info {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 24px 0;
+      text-align: center;
+    }
+    
+    .contact-info h4 {
+      margin: 0 0 12px 0;
+      color: #374151;
+    }
+    
+    .contact-info p {
+      margin: 0;
+      color: #6b7280;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="container topbar__row">
+      <div class="logo">
+        <a href="/" style="text-decoration: none; color: inherit;">
+          <span>🧭</span>
+          <span class="logo__title">골목상권 빅데이터 분석</span>
+        </a>
+      </div>
+      <nav class="top-actions">
+        <a href="/account" class="btn btn--ghost">내 계정</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="fail-hero">
+    <div class="container">
+      <h1>❌ 결제에 실패했습니다</h1>
+      <p>죄송합니다. 결제 처리 중 문제가 발생했습니다.</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <div class="fail-container">
+    
+    <div class="fail-card">
+      <div class="fail-icon">⚠️</div>
+      <h2 class="fail-title">결제 실패</h2>
+      <p class="fail-message">
+        결제 처리 중 오류가 발생했습니다.<br>
+        아래 정보를 확인하시고 다시 시도해주세요.
+      </p>
+      
+      <div class="error-info">
+        <div class="error-row">
+          <span class="error-label">실패 사유</span>
+          <span class="error-value" id="errorMessage">알 수 없는 오류</span>
+        </div>
+        <div class="error-row">
+          <span class="error-label">주문번호</span>
+          <span class="error-value" id="orderId">-</span>
+        </div>
+        <div class="error-row">
+          <span class="error-label">실패 코드</span>
+          <span class="error-value" id="errorCode">-</span>
+        </div>
+      </div>
+      
+      <div style="margin-top: 32px;">
+        <a href="/payment?plan=premium" class="btn-retry">다시 결제하기</a>
+        <a href="/" class="btn-secondary">홈으로 이동</a>
+      </div>
+    </div>
+    
+    <div class="help-info">
+      <h3>🔍 문제 해결 방법</h3>
+      <ul>
+        <li>카드 정보를 다시 확인해주세요</li>
+        <li>카드 한도 및 잔액을 확인해주세요</li>
+        <li>인터넷 연결 상태를 확인해주세요</li>
+        <li>다른 결제 수단을 이용해주세요</li>
+        <li>잠시 후 다시 시도해주세요</li>
+      </ul>
+    </div>
+    
+    <div class="contact-info">
+      <h4>📞 고객지원</h4>
+      <p>
+        결제 문제가 지속되면 고객지원팀에 문의해주세요.<br>
+        이메일: support@example.com | 전화: 1588-0000
+      </p>
+    </div>
+    
+  </div>
+
+  <script>
+    // URL 파라미터에서 결제 실패 정보 추출
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorMessage = urlParams.get('message');
+    const orderId = urlParams.get('orderId');
+    const errorCode = urlParams.get('code');
+    
+    // 오류 정보 표시
+    if (errorMessage) {
+      document.getElementById('errorMessage').textContent = decodeURIComponent(errorMessage);
+    }
+    
+    if (orderId) {
+      document.getElementById('orderId').textContent = orderId;
+    }
+    
+    if (errorCode) {
+      document.getElementById('errorCode').textContent = errorCode;
+    }
+    
+    // 디버깅 로그
+    console.log('결제 실패 정보:', {
+      errorMessage,
+      orderId,
+      errorCode
+    });
+    
+    // 일반적인 오류 메시지 번역
+    function translateErrorMessage(message) {
+      const errorTranslations = {
+        'USER_CANCEL': '사용자가 결제를 취소했습니다',
+        'INVALID_CARD': '유효하지 않은 카드입니다',
+        'INSUFFICIENT_FUNDS': '잔액이 부족합니다',
+        'EXCEED_MAX_CARD_MONEY': '카드 한도를 초과했습니다',
+        'INVALID_EXPIRY': '카드 유효기간이 잘못되었습니다',
+        'INVALID_BIRTH': '생년월일이 잘못되었습니다',
+        'INVALID_PASSWORD': '카드 비밀번호가 잘못되었습니다'
+      };
+      
+      return errorTranslations[message] || message;
+    }
+    
+    // 오류 메시지가 있으면 번역해서 표시
+    if (errorCode && document.getElementById('errorMessage').textContent === '알 수 없는 오류') {
+      document.getElementById('errorMessage').textContent = translateErrorMessage(errorCode);
+    }
+  </script>
+</body>
+</html>

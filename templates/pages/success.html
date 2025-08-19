@@ -1,0 +1,340 @@
+{% load static %}
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>결제 완료 - 골목상권 빅데이터 분석</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  
+  <style>
+    .success-hero {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 80px 0;
+      text-align: center;
+    }
+    
+    .success-container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+    
+    .success-card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .success-icon {
+      font-size: 64px;
+      color: #10b981;
+      margin-bottom: 24px;
+    }
+    
+    .success-title {
+      font-size: 28px;
+      font-weight: bold;
+      color: #111827;
+      margin-bottom: 16px;
+    }
+    
+    .success-message {
+      font-size: 16px;
+      color: #6b7280;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    
+    .payment-info {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+      text-align: left;
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding: 8px 0;
+    }
+    
+    .info-row:last-child {
+      margin-bottom: 0;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 12px;
+      font-weight: bold;
+    }
+    
+    .info-label {
+      color: #6b7280;
+    }
+    
+    .info-value {
+      color: #111827;
+      font-weight: 500;
+    }
+    
+    .btn-primary {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin: 8px;
+    }
+    
+    .btn-primary:hover {
+      background: #059669;
+      color: white;
+      text-decoration: none;
+    }
+    
+    .btn-secondary {
+      background: white;
+      color: #374151;
+      border: 1px solid #d1d5db;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin: 8px;
+    }
+    
+    .btn-secondary:hover {
+      background: #f9fafb;
+      color: #374151;
+      text-decoration: none;
+    }
+    
+    .next-steps {
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+    
+    .next-steps h3 {
+      color: #1e40af;
+      margin: 0 0 16px 0;
+      font-size: 18px;
+    }
+    
+    .next-steps ul {
+      margin: 0;
+      padding-left: 20px;
+      color: #1e40af;
+    }
+    
+    .next-steps li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="topbar">
+    <div class="container topbar__row">
+      <div class="logo">
+        <a href="/" style="text-decoration: none; color: inherit;">
+          <span>🧭</span>
+          <span class="logo__title">골목상권 빅데이터 분석</span>
+        </a>
+      </div>
+      <nav class="top-actions">
+        <a href="/account" class="btn btn--ghost">내 계정</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="success-hero">
+    <div class="container">
+      <h1>🎉 결제가 완료되었습니다!</h1>
+      <p>프리미엄 구독이 시작되었습니다. 무제한 상권 분석을 시작해보세요!</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <div class="success-container">
+    
+    <div class="success-card">
+      <div class="success-icon">✅</div>
+      <h2 class="success-title">결제 성공</h2>
+      <p class="success-message">
+        프리미엄 플랜 구독이 성공적으로 완료되었습니다.<br>
+        이제 모든 기능을 무제한으로 이용하실 수 있습니다.
+      </p>
+      
+      <div class="payment-info">
+        <div class="info-row">
+          <span class="info-label">상품명</span>
+          <span class="info-value" id="orderName">프리미엄 플랜 1개월</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">주문번호</span>
+          <span class="info-value" id="orderId">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">결제수단</span>
+          <span class="info-value" id="paymentType">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">결제금액</span>
+          <span class="info-value" id="amount">-</span>
+        </div>
+      </div>
+      
+      <div style="margin-top: 32px;">
+        <a href="/" class="btn-primary">홈으로 이동</a>
+        <a href="/account" class="btn-secondary">내 계정</a>
+      </div>
+    </div>
+    
+    <div class="next-steps">
+      <h3>📋 다음 단계</h3>
+      <ul>
+        <li>대시보드에서 상권 분석을 시작해보세요</li>
+        <li>관심 있는 지역을 검색하고 분석해보세요</li>
+        <li>AI 추천 기능으로 투자 기회를 발견하세요</li>
+        <li>언제든지 구독을 관리할 수 있습니다</li>
+      </ul>
+    </div>
+    
+  </div>
+
+  <script>
+    // URL 파라미터에서 결제 정보 추출
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentType = urlParams.get('paymentType');
+    const orderId = urlParams.get('orderId');
+    const paymentKey = urlParams.get('paymentKey');
+    const amount = urlParams.get('amount');
+    
+    // 결제 정보 표시
+    if (orderId) {
+      document.getElementById('orderId').textContent = orderId;
+    }
+    
+    if (paymentType) {
+      let paymentTypeText = paymentType;
+      switch(paymentType) {
+        case 'NORMAL': paymentTypeText = '일반결제'; break;
+        case 'BILLING': paymentTypeText = '자동결제'; break;
+        case 'BRANDPAY': paymentTypeText = '브랜드페이'; break;
+      }
+      document.getElementById('paymentType').textContent = paymentTypeText;
+    }
+    
+    if (amount) {
+      document.getElementById('amount').textContent = '₩' + parseInt(amount).toLocaleString();
+    }
+    
+    // 디버깅 로그
+    console.log('결제 성공 정보:', {
+      paymentType,
+      orderId, 
+      paymentKey,
+      amount
+    });
+    
+    // 서버에 결제 성공 정보 전송
+    async function sendPaymentInfo() {
+      if (!paymentKey || !orderId || !amount) {
+        console.error('결제 정보가 불완전합니다.');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/payment/success/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken') // CSRF 토큰 가져오기
+          },
+          body: JSON.stringify({
+            paymentKey: paymentKey,
+            orderId: orderId,
+            amount: parseInt(amount)
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          console.log('결제 정보 저장 성공:', result.message);
+          
+          // 성공 메시지 표시 (선택사항)
+          const successElement = document.querySelector('.success-message');
+          if (successElement) {
+            successElement.innerHTML += '<br><small style="color: #10b981;">✓ 구독이 활성화되었습니다.</small>';
+          }
+        } else {
+          console.error('결제 정보 저장 실패:', result.error);
+          
+          // 오류 메시지 표시
+          const errorDiv = document.createElement('div');
+          errorDiv.style.cssText = 'background: #fef2f2; color: #dc2626; padding: 12px; border-radius: 8px; margin: 16px 0; font-size: 14px;';
+          errorDiv.textContent = '결제는 완료되었지만 시스템 처리 중 오류가 발생했습니다. 고객지원에 문의해주세요.';
+          
+          const successCard = document.querySelector('.success-card');
+          if (successCard) {
+            successCard.appendChild(errorDiv);
+          }
+        }
+      } catch (error) {
+        console.error('서버 통신 오류:', error);
+        
+        // 네트워크 오류 메시지 표시
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = 'background: #fef2f2; color: #dc2626; padding: 12px; border-radius: 8px; margin: 16px 0; font-size: 14px;';
+        errorDiv.textContent = '결제는 완료되었지만 서버 통신 중 오류가 발생했습니다. 잠시 후 다시 시도하거나 고객지원에 문의해주세요.';
+        
+        const successCard = document.querySelector('.success-card');
+        if (successCard) {
+          successCard.appendChild(errorDiv);
+        }
+      }
+    }
+    
+    // CSRF 토큰 가져오기 함수
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    
+    // 페이지 로드 시 결제 정보 전송
+    document.addEventListener('DOMContentLoaded', function() {
+      // 1초 후 실행 (UI 표시 완료 후)
+      setTimeout(sendPaymentInfo, 1000);
+    });
+  </script>
+</body>
+</html>

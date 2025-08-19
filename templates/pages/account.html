@@ -162,6 +162,16 @@
       color: #92400e;
     }
     
+    .payment-status.failed {
+      background: #fecaca;
+      color: #991b1b;
+    }
+    
+    .payment-status.cancelled {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+    
     .btn-upgrade {
       background: linear-gradient(135deg, #3b82f6, #8b5cf6);
       color: white;
@@ -336,25 +346,46 @@
         <section id="billing" class="payment-history">
           <h2>결제 내역</h2>
           
-          {% if user.payments.all %}
-            {% for payment in user.payments.all %}
+          {% if payments %}
+            {% for payment in payments %}
             <div class="payment-item">
               <div>
                 <div style="font-weight: 500;">프리미엄 플랜 ({{ payment.subscription_months }}개월)</div>
-                <div style="color: #6b7280; font-size: 14px;">{{ payment.created_at|date:"Y년 m월 d일" }}</div>
+                <div style="color: #6b7280; font-size: 14px;">
+                  {{ payment.created_at|date:"Y년 m월 d일 H:i" }}
+                  {% if payment.order_id %}
+                    | 주문번호: {{ payment.order_id }}
+                  {% endif %}
+                </div>
+                {% if payment.payment_method %}
+                  <div style="color: #9ca3af; font-size: 12px;">
+                    결제수단: {{ payment.payment_method }}
+                  </div>
+                {% endif %}
               </div>
               <div style="text-align: right;">
                 <div style="font-weight: 500;">₩{{ payment.amount|floatformat:0 }}</div>
                 <span class="payment-status {{ payment.status }}">
                   {{ payment.get_status_display }}
                 </span>
+                {% if payment.approved_at %}
+                  <div style="color: #6b7280; font-size: 12px; margin-top: 4px;">
+                    승인: {{ payment.approved_at|date:"m/d H:i" }}
+                  </div>
+                {% endif %}
               </div>
             </div>
             {% endfor %}
           {% else %}
-            <p style="color: #6b7280; text-align: center; padding: 40px 0;">
-              아직 결제 내역이 없습니다.
-            </p>
+            <div style="text-align: center; padding: 40px 0;">
+              <div style="font-size: 48px; margin-bottom: 16px;">💳</div>
+              <p style="color: #6b7280; margin: 0;">
+                아직 결제 내역이 없습니다.
+              </p>
+              <p style="color: #9ca3af; font-size: 14px; margin: 8px 0 0 0;">
+                프리미엄 플랜을 구독하면 여기에서 결제 내역을 확인할 수 있습니다.
+              </p>
+            </div>
           {% endif %}
         </section>
 

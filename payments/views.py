@@ -1,6 +1,7 @@
 import json
 import uuid
 import requests
+import base64
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.shortcuts import render, redirect
@@ -11,13 +12,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
+from django.db import IntegrityError
 from accounts.models import User, UserProfile, Payment
-
-
-# 토스 페이먼츠 설정
-TOSS_CLIENT_KEY = "test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq"  # 테스트 키
-TOSS_SECRET_KEY = "test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R"  # 테스트 키
-TOSS_API_URL = "https://api.tosspayments.com/v1/payments"
 
 
 @login_required
@@ -33,192 +29,6 @@ def payment_page(request):
     }
     
     return render(request, 'pages/payment.html', context)
-
-
-@login_required
-@require_http_methods(["POST"])
-def create_order(request):
-    """주문 생성 API"""
-    try:
-        data = json.loads(request.body)
-        amount = data.get('amount')
-        order_id = data.get('order_id')
-        plan = data.get('plan', 'premium')
-        
-        # 주문 유효성 검사
-        if not amount or not order_id:
-            return JsonResponse({'success': False, 'message': '주문 정보가 부족합니다.'}, status=400)
-        
-        if amount != 9500:  # 프리미엄 플랜 가격
-            return JsonResponse({'success': False, 'message': '잘못된 결제 금액입니다.'}, status=400)
-        
-        # 중복 주문 확인
-        if Payment.objects.filter(order_id=order_id).exists():
-            return JsonResponse({'success': False, 'message': '이미 존재하는 주문입니다.'}, status=400)
-        
-        # 결제 정보 저장
-        payment = Payment.objects.create(
-            user=request.user,
-            amount=amount,
-            payment_key='',  # 토스에서 생성될 예정
-            order_id=order_id,
-            status='pending',
-            subscription_months=1
-        )
-        
-        return JsonResponse({
-            'success': True,
-            'payment_id': payment.id,
-            'order_id': order_id
-        })
-        
-    except Exception as e:
-        return JsonResponse({'success': False, 'message': str(e)}, status=500)
-
-
-def payment_success(request):
-    """결제 성공 콜백"""
-    payment_key = request.GET.get('paymentKey')
-    order_id = request.GET.get('orderId')
-    amount = request.GET.get('amount')
-    
-    if not all([payment_key, order_id, amount]):
-        return render(request, 'pages/payment_result.html', {
-            'success': False,
-            'message': '결제 정보가 부족합니다.'
-        })
-    
-    try:
-        # 결제 승인 요청
-        confirm_response = confirm_payment(payment_key, order_id, amount)
-        
-        if confirm_response['success']:
-            # 결제 정보 업데이트
-            payment = Payment.objects.get(order_id=order_id)
-            payment.payment_key = payment_key
-            payment.status = 'completed'
-            payment.approved_at = timezone.now()
-            payment.payment_method = confirm_response['data'].get('method', '')
-            payment.save()
-            
-            # 구독 활성화
-            payment.activate_subscription()
-            
-            return render(request, 'pages/payment_result.html', {
-                'success': True,
-                'payment': payment,
-                'message': '결제가 성공적으로 완료되었습니다.'
-            })
-        else:
-            return render(request, 'pages/payment_result.html', {
-                'success': False,
-                'message': confirm_response['message']
-            })
-            
-    except Payment.DoesNotExist:
-        return render(request, 'pages/payment_result.html', {
-            'success': False,
-            'message': '주문 정보를 찾을 수 없습니다.'
-        })
-    except Exception as e:
-        return render(request, 'pages/payment_result.html', {
-            'success': False,
-            'message': f'결제 처리 중 오류가 발생했습니다: {str(e)}'
-        })
-
-
-def payment_fail(request):
-    """결제 실패 콜백"""
-    code = request.GET.get('code')
-    message = request.GET.get('message')
-    order_id = request.GET.get('orderId')
-    
-    try:
-        if order_id:
-            payment = Payment.objects.get(order_id=order_id)
-            payment.status = 'failed'
-            payment.save()
-    except Payment.DoesNotExist:
-        pass
-    
-    return render(request, 'pages/payment_result.html', {
-        'success': False,
-        'message': message or '결제가 취소되었습니다.',
-        'code': code
-    })
-
-
-@csrf_exempt
-@require_http_methods(["POST"])
-def payment_webhook(request):
-    """토스 페이먼츠 웹훅"""
-    try:
-        data = json.loads(request.body)
-        event_type = data.get('eventType')
-        payment_data = data.get('data', {})
-        
-        if event_type == 'PAYMENT_STATUS_CHANGED':
-            payment_key = payment_data.get('paymentKey')
-            order_id = payment_data.get('orderId')
-            status = payment_data.get('status')
-            
-            try:
-                payment = Payment.objects.get(order_id=order_id)
-                
-                if status == 'DONE':
-                    payment.status = 'completed'
-                    payment.approved_at = timezone.now()
-                    payment.activate_subscription()
-                elif status == 'CANCELED':
-                    payment.status = 'cancelled'
-                elif status == 'FAILED':
-                    payment.status = 'failed'
-                
-                payment.save()
-                
-            except Payment.DoesNotExist:
-                pass
-        
-        return JsonResponse({'success': True})
-        
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
-
-def confirm_payment(payment_key, order_id, amount):
-    """토스 페이먼츠 결제 승인"""
-    try:
-        url = f"{TOSS_API_URL}/confirm"
-        headers = {
-            'Authorization': f'Basic {TOSS_SECRET_KEY}',
-            'Content-Type': 'application/json'
-        }
-        
-        data = {
-            'paymentKey': payment_key,
-            'orderId': order_id,
-            'amount': int(amount)
-        }
-        
-        response = requests.post(url, headers=headers, json=data)
-        
-        if response.status_code == 200:
-            return {
-                'success': True,
-                'data': response.json()
-            }
-        else:
-            error_data = response.json()
-            return {
-                'success': False,
-                'message': error_data.get('message', '결제 승인에 실패했습니다.')
-            }
-            
-    except Exception as e:
-        return {
-            'success': False,
-            'message': f'결제 승인 요청 중 오류가 발생했습니다: {str(e)}'
-        }
 
 
 # 페이지 뷰들
@@ -318,12 +128,179 @@ def account_page(request):
     # 사용자 프로필이 없으면 생성
     profile, created = UserProfile.objects.get_or_create(user=request.user)
     
+    # 결제 내역을 최신순으로 정렬하여 가져오기
+    payments = request.user.payments.all().order_by('-created_at')
+    
     context = {
         'user': request.user,
-        'profile': profile
+        'profile': profile,
+        'payments': payments
     }
     
     return render(request, 'pages/account.html', context)
+
+
+def success_page(request):
+    """결제 성공 페이지"""
+    return render(request, 'pages/success.html')
+
+
+def fail_page(request):
+    """결제 실패 페이지"""
+    return render(request, 'pages/fail.html')
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def payment_success_api(request):
+    """결제 성공 처리 API"""
+    print(f"[DEBUG] API 호출 시작 - User authenticated: {request.user.is_authenticated}")
+    print(f"[DEBUG] Request body: {request.body}")
+    
+    try:
+        data = json.loads(request.body)
+        payment_key = data.get('paymentKey')
+        order_id = data.get('orderId')
+        amount = data.get('amount')
+        
+        print(f"[DEBUG] 파라미터 추출 - paymentKey: {payment_key}, orderId: {order_id}, amount: {amount}")
+        
+        if not payment_key or not order_id or not amount:
+            missing_params = []
+            if not payment_key: missing_params.append('paymentKey')
+            if not order_id: missing_params.append('orderId')
+            if not amount: missing_params.append('amount')
+            
+            error_msg = f'필수 파라미터가 누락되었습니다: {", ".join(missing_params)}'
+            print(f"[DEBUG] {error_msg}")
+            return JsonResponse({
+                'success': False,
+                'error': error_msg
+            }, status=400)
+        
+        amount = int(amount)
+        
+        # 토스 페이먼츠 API로 결제 검증 (테스트 환경에서는 생략)
+        payment_method = "테스트결제"  # 기본값
+        
+        # 테스트 키인지 확인 (실제 운영환경에서는 이 부분을 제거하고 항상 검증해야 함)
+        if payment_key.startswith('tgen_'):
+            print(f"[DEBUG] 테스트 결제로 인식 - 토스 API 검증 생략")
+            # 테스트 환경에서는 검증 생략
+            payment_data = {
+                'method': '테스트결제',
+                'orderId': order_id,
+                'totalAmount': amount
+            }
+        else:
+            # 실제 결제일 경우 토스 API 검증
+            print(f"[DEBUG] 실제 결제 - 토스 API 검증 시작")
+            toss_secret_key = "test_sk_6BYq7GWPVvxKzQ7Dq0qm8NE5vbo1"
+            auth_string = base64.b64encode(f"{toss_secret_key}:".encode()).decode()
+            
+            headers = {
+                'Authorization': f'Basic {auth_string}',
+                'Content-Type': 'application/json'
+            }
+            
+            verify_url = f"https://api.tosspayments.com/v1/payments/{payment_key}"
+            response = requests.get(verify_url, headers=headers)
+            
+            if response.status_code != 200:
+                print(f"[DEBUG] 토스 API 응답 오류: {response.status_code}, {response.text}")
+                return JsonResponse({
+                    'success': False,
+                    'error': f'결제 검증에 실패했습니다. 상태코드: {response.status_code}'
+                }, status=400)
+            
+            payment_data = response.json()
+            
+            # 결제 정보 검증
+            if payment_data['orderId'] != order_id or payment_data['totalAmount'] != amount:
+                print(f"[DEBUG] 결제 정보 불일치 - API orderId: {payment_data['orderId']}, 요청 orderId: {order_id}")
+                print(f"[DEBUG] 결제 정보 불일치 - API amount: {payment_data['totalAmount']}, 요청 amount: {amount}")
+                return JsonResponse({
+                    'success': False,
+                    'error': '결제 정보가 일치하지 않습니다.'
+                }, status=400)
+        
+        # orderId에서 user_id 추출 (order_userid_timestamp_random 형태)
+        user = None
+        try:
+            # orderId 파싱: order_userid_timestamp_random
+            order_parts = order_id.split('_')
+            if len(order_parts) >= 4 and order_parts[0] == 'order':
+                user_id = int(order_parts[1])
+                user = User.objects.get(user_id=user_id)
+                print(f"[DEBUG] orderId에서 추출한 user_id: {user_id}, user: {user}")
+            else:
+                # 기존 형식 (order_timestamp_random) - 로그인된 사용자 사용
+                if request.user.is_authenticated:
+                    user = request.user
+                    print(f"[DEBUG] 로그인된 사용자 사용: {user}")
+                else:
+                    print(f"[DEBUG] orderId 파싱 실패 및 비로그인 상태: {order_id}")
+        except (ValueError, User.DoesNotExist) as e:
+            print(f"[DEBUG] 사용자 추출 오류: {e}")
+            
+        if not user:
+            return JsonResponse({
+                'success': False,
+                'error': f'사용자를 찾을 수 없습니다. orderId: {order_id}'
+            }, status=400)
+        
+        # 중복 결제 확인
+        existing_payment = Payment.objects.filter(
+            payment_key=payment_key
+        ).first()
+        
+        if existing_payment:
+            return JsonResponse({
+                'success': False,
+                'error': '이미 처리된 결제입니다.'
+            }, status=400)
+        
+        # Payment 모델에 저장
+        print(f"[DEBUG] Payment 모델 저장 시작 - user: {user}, amount: {amount}")
+        
+        payment = Payment.objects.create(
+            user=user,
+            amount=amount,
+            payment_key=payment_key,
+            order_id=order_id,
+            status='completed',
+            subscription_months=1,  # 기본 1개월
+            payment_method=payment_data.get('method', ''),
+            approved_at=timezone.now()
+        )
+        
+        print(f"[DEBUG] Payment 저장 완료 - payment_id: {payment.id}")
+        
+        # 구독 활성화
+        payment.activate_subscription()
+        print(f"[DEBUG] 구독 활성화 완료")
+        
+        return JsonResponse({
+            'success': True,
+            'payment_id': payment.id,
+            'user_id': user.user_id,
+            'message': '결제가 성공적으로 처리되었습니다.'
+        })
+        
+    except json.JSONDecodeError as e:
+        print(f"[DEBUG] JSON 파싱 오류: {e}")
+        return JsonResponse({
+            'success': False,
+            'error': '잘못된 요청 형식입니다.'
+        }, status=400)
+    except Exception as e:
+        print(f"[DEBUG] 예외 발생: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'error': f'서버 오류가 발생했습니다: {str(e)}'
+        }, status=500)
 
 
 @login_required
