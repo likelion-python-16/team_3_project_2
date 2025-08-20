@@ -63,6 +63,49 @@ class CafeIdViewSet(viewsets.ModelViewSet):
         return render(request, 'index.html', context)
     
     @action(detail=False, methods=['get'])
+    def map_markers(self, request):
+        """지도 마커용 카페 데이터를 반환하는 API - 인증 불필요"""
+        queryset = self.get_queryset()
+        
+        # 지역 필터
+        region = request.query_params.get('region')
+        if region and region != '서울시 전체':
+            queryset = queryset.filter(distinct=region)
+        
+        # 업종 대분류 필터
+        major_category = request.query_params.get('major_category')
+        if major_category and major_category != 'type_all':
+            if major_category == 'franchise':
+                queryset = queryset.filter(franchise=True)
+            elif major_category == 'individual':
+                queryset = queryset.filter(franchise=False)
+        
+        # 업종 중분류 필터
+        mid_category = request.query_params.get('mid_category')
+        if mid_category and mid_category != '전체':
+            queryset = queryset.filter(franchise_type__icontains=mid_category)
+        
+        # 지도용 마커 데이터 포맷 (최소 정보만)
+        markers_data = []
+        for cafe in queryset:
+            markers_data.append({
+                'id': cafe.cafe_id,
+                'name': cafe.name,
+                'latitude': float(cafe.latitude),
+                'longitude': float(cafe.longitude),
+                'status': self._get_cafe_status(cafe),
+                'franchise': cafe.franchise,
+                'district': cafe.distinct,
+                'detail_address': cafe.detail_address
+            })
+        
+        return Response({
+            'success': True,
+            'markers': markers_data,
+            'total_count': len(markers_data)
+        })
+    
+    @action(detail=False, methods=['get'])
     def filtered_data(self, request):
         """필터링된 카페 데이터를 반환하는 API - 인증 필요"""
         if not request.user.is_authenticated:

@@ -250,9 +250,11 @@
     let selectedMajorCategory = urlParams.get('major_category') || 'type_all';
     let selectedMidCategory = urlParams.get('mid_category') || '전체';
     
-    // 페이지 로드 시 제목 업데이트
+    // 페이지 로드 시 초기화
     document.addEventListener('DOMContentLoaded', () => {
       updatePageTitle();
+      moveToRegionCenter(selectedRegion); // 초기 지역에 맞게 지도 중심 이동
+      loadCafeMarkers(); // 초기 카페 마커 로드
     });
 
     // 부모 창으로부터 메시지 수신
@@ -268,6 +270,12 @@
         // UI 업데이트
         updatePageTitle();
         updateKPIValues();
+        
+        // 지역 변경 시 지도 중심 이동
+        moveToRegionCenter(selectedRegion);
+        
+        // 카페 마커 다시 로딩
+        loadCafeMarkers();
       }
     });
 
@@ -333,13 +341,211 @@
       }
     }
 
+    // 서울시 각 구별 중심 좌표
+    const seoulDistrictCoordinates = {
+      '강남구': { lat: 37.4979, lng: 127.0276, level: 6 },
+      '강동구': { lat: 37.5301, lng: 127.1238, level: 6 },
+      '강북구': { lat: 37.6398, lng: 127.0256, level: 6 },
+      '강서구': { lat: 37.5509, lng: 126.8495, level: 6 },
+      '관악구': { lat: 37.4784, lng: 126.9514, level: 6 },
+      '광진구': { lat: 37.5385, lng: 127.0822, level: 6 },
+      '구로구': { lat: 37.4955, lng: 126.8873, level: 6 },
+      '금천구': { lat: 37.4593, lng: 126.9003, level: 6 },
+      '노원구': { lat: 37.6542, lng: 127.0568, level: 6 },
+      '도봉구': { lat: 37.6688, lng: 127.0471, level: 6 },
+      '동대문구': { lat: 37.5836, lng: 127.0544, level: 6 },
+      '동작구': { lat: 37.4971, lng: 126.9395, level: 6 },
+      '마포구': { lat: 37.5663, lng: 126.9019, level: 6 },
+      '서대문구': { lat: 37.5794, lng: 126.9368, level: 6 },
+      '서초구': { lat: 37.4737, lng: 127.0324, level: 6 },
+      '성동구': { lat: 37.5636, lng: 127.0369, level: 6 },
+      '성북구': { lat: 37.6027, lng: 127.0167, level: 6 },
+      '송파구': { lat: 37.5145, lng: 127.1059, level: 6 },
+      '양천구': { lat: 37.5270, lng: 126.8561, level: 6 },
+      '영등포구': { lat: 37.5264, lng: 126.8962, level: 6 },
+      '용산구': { lat: 37.5311, lng: 126.9810, level: 6 },
+      '은평구': { lat: 37.6176, lng: 126.9227, level: 6 },
+      '종로구': { lat: 37.5735, lng: 126.9788, level: 6 },
+      '중구': { lat: 37.5640, lng: 126.9970, level: 6 },
+      '중랑구': { lat: 37.6063, lng: 127.0925, level: 6 }
+    };
+
     var container = document.getElementById('map'); //지도를 담을 영역의 DOM 레퍼런스
     var options = { //지도를 생성할 때 필요한 기본 옵션
-      center: new kakao.maps.LatLng(37.4979, 127.0276), //지도의 중심좌표 (강남역)
-      level: 3 //지도의 레벨(확대, 축소 정도)
+      center: new kakao.maps.LatLng(37.5665, 126.9780), //지도의 중심좌표 (서울시청)
+      level: 8 //지도의 레벨(확대, 축소 정도)
     };
   
     var map = new kakao.maps.Map(container, options); //지도 생성 및 객체 리턴
+    
+    // 마커 관련 변수들
+    var markers = []; // 현재 표시된 마커들
+    var infoWindow = new kakao.maps.InfoWindow({zIndex:1}); // 정보창
+    
+    // 모든 마커 제거
+    function clearMarkers() {
+      markers.forEach(marker => {
+        marker.setMap(null);
+      });
+      markers = [];
+      infoWindow.close();
+    }
+    
+    // 지역별 지도 중심 이동 함수
+    function moveToRegionCenter(regionName) {
+      if (!regionName || regionName === '서울시 전체') {
+        // 서울시 전체 선택 시 서울시청 중심으로 이동
+        const center = new kakao.maps.LatLng(37.5665, 126.9780);
+        map.setCenter(center);
+        map.setLevel(8); // 서울시 전체가 보이는 레벨
+        console.log('서울시 전체 지도로 이동');
+      } else {
+        // 특정 구 선택 시 해당 구 중심으로 이동
+        const districtInfo = seoulDistrictCoordinates[regionName];
+        if (districtInfo) {
+          const center = new kakao.maps.LatLng(districtInfo.lat, districtInfo.lng);
+          map.setCenter(center);
+          map.setLevel(districtInfo.level);
+          console.log(`${regionName} 지도로 이동: ${districtInfo.lat}, ${districtInfo.lng}`);
+        } else {
+          console.warn(`${regionName}에 해당하는 좌표를 찾을 수 없습니다.`);
+        }
+      }
+    }
+    
+    // 개별 카페 마커 생성
+    function createCafeMarker(cafe) {
+      const position = new kakao.maps.LatLng(cafe.latitude, cafe.longitude);
+      
+      // 상태별 마커 이미지 설정
+      const markerImage = createMarkerImage(cafe.status);
+      
+      // 마커 생성
+      const marker = new kakao.maps.Marker({
+        position: position,
+        image: markerImage,
+        title: cafe.name
+      });
+      
+      marker.setMap(map);
+      markers.push(marker);
+      
+      // 마커 클릭 이벤트
+      kakao.maps.event.addListener(marker, 'click', function() {
+        showCafeInfo(cafe, marker);
+      });
+    }
+    
+    // 마커 이미지 생성 함수
+    function createMarkerImage(status) {
+      const color = getMarkerColor(status);
+      const imageSize = new kakao.maps.Size(24, 35);
+      const imageOption = {offset: new kakao.maps.Point(12, 35)};
+      
+      // SVG를 이용한 마커 이미지 생성
+      const svgMarker = `
+        <svg width="24" height="35" viewBox="0 0 24 35" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 0C5.4 0 0 5.4 0 12c0 8.4 12 23 12 23s12-14.6 12-23c0-6.6-5.4-12-12-12z" fill="${color}"/>
+          <circle cx="12" cy="12" r="6" fill="white"/>
+        </svg>
+      `;
+      
+      const imageSrc = 'data:image/svg+xml;base64,' + btoa(svgMarker);
+      
+      return new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+    }
+    
+    // 상태별 마커 색상 반환
+    function getMarkerColor(status) {
+      const colorMap = {
+        'safe': '#10b981',    // 초록색 (안정)
+        'warning': '#f59e0b', // 노란색 (주의)
+        'risk': '#ef4444'     // 빨간색 (위험)
+      };
+      return colorMap[status] || '#6b7280'; // 기본값: 회색
+    }
+    
+    // 카페 정보를 정보창으로 표시
+    function showCafeInfo(cafe, marker) {
+      const content = `
+        <div style="padding:10px; min-width:200px;">
+          <div style="font-weight:bold; margin-bottom:5px;">${cafe.name}</div>
+          <div style="font-size:12px; color:#666; margin-bottom:3px;">
+            ${cafe.franchise ? '프랜차이즈' : '개인카페'}
+          </div>
+          <div style="font-size:12px; color:#666; margin-bottom:3px;">${cafe.detail_address}</div>
+          <div style="margin-top:8px;">
+            <span style="padding:2px 6px; border-radius:4px; font-size:11px; color:white; background-color:${getMarkerColor(cafe.status)};">
+              ${getStatusText(cafe.status)}
+            </span>
+          </div>
+        </div>
+      `;
+      
+      infoWindow.setContent(content);
+      infoWindow.open(map, marker);
+    }
+    
+    // 상태 텍스트 반환
+    function getStatusText(status) {
+      const statusMap = {
+        'safe': '안정',
+        'warning': '주의',
+        'risk': '위험'
+      };
+      return statusMap[status] || '알 수 없음';
+    }
+    
+    // 카페 데이터를 가져와서 마커로 표시
+    function loadCafeMarkers() {
+      const params = new URLSearchParams();
+      
+      if (selectedRegion && selectedRegion !== '서울시 전체') {
+        params.append('region', selectedRegion);
+      }
+      if (selectedMajorCategory && selectedMajorCategory !== 'type_all') {
+        params.append('major_category', selectedMajorCategory);
+      }
+      if (selectedMidCategory && selectedMidCategory !== '전체') {
+        params.append('mid_category', selectedMidCategory);
+      }
+      
+      const apiUrl = `/api/cafes/cafes/map_markers/?${params.toString()}`;
+      console.log('카페 마커 데이터 로딩:', apiUrl);
+      
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('카페 마커 데이터 수신:', data);
+          if (data.success && data.markers) {
+            displayCafeMarkers(data.markers);
+          } else {
+            console.warn('마커 데이터가 없습니다:', data);
+          }
+        })
+        .catch(error => {
+          console.error('카페 마커 데이터 로딩 실패:', error);
+        });
+    }
+    
+    // 카페 마커들을 지도에 표시
+    function displayCafeMarkers(cafeData) {
+      // 기존 마커들 제거
+      clearMarkers();
+      
+      cafeData.forEach(cafe => {
+        if (cafe.latitude && cafe.longitude) {
+          createCafeMarker(cafe);
+        }
+      });
+      
+      console.log(`${markers.length}개 카페 마커 표시 완료`);
+    }
     
     // KPI 클릭 이벤트 리스너 추가
     document.addEventListener('DOMContentLoaded', function() {

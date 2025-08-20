@@ -93,8 +93,8 @@ class Command(BaseCommand):
                                 franchise=row.get('franchise', 'FALSE').upper() == 'TRUE',
                                 franchise_type=row.get('franchise_type', '').strip(),
                                 biz_code=row.get('biz_code', '').strip(),
-                                latitude=float(row['latitude']) if row.get('latitude') else 0.0,
-                                longitude=float(row['longitude']) if row.get('longitude') else 0.0,
+                                latitude=float(row.get('latitude', row.get('위도', row.get('����', '0.0')))),
+                                longitude=float(row.get('longitude', row.get('경도', row.get('�浵', '0.0')))),
                                 rp_key=default_rp
                             )
                             cafe_id.full_clean()
