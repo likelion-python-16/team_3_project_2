@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 15s  # 15초마다 메트릭을 수집합니다.
+
+scrape_configs:
+  - job_name: 'django-app'
+    static_configs:
+      - targets: ['web:8000'] # 'web'은 docker-compose.yml에 정의될 Django 서비스 이름입니다.

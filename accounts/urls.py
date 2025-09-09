@@ -1,8 +1,8 @@
-from django.urls import path
 from rest_framework.routers import DefaultRouter
+
 from .views import UserViewSet
 
-app_name = 'accounts'
+app_name = "accounts"
 
 # Router for ViewSets (both API and template actions)
 router = DefaultRouter()

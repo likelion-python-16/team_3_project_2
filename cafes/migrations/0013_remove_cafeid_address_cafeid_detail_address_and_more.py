@@ -4,25 +4,28 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cafes', '0012_alter_cafesales_date'),
+        ("cafes", "0012_alter_cafesales_date"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='cafeid',
-            name='address',
+            model_name="cafeid",
+            name="address",
         ),
         migrations.AddField(
-            model_name='cafeid',
-            name='detail_address',
-            field=models.CharField(default='exit', help_text='세부주소를 입력하세요', max_length=200),
+            model_name="cafeid",
+            name="detail_address",
+            field=models.CharField(
+                default="exit", help_text="세부주소를 입력하세요", max_length=200
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='cafeid',
-            name='distinct',
-            field=models.CharField(help_text='구 단위로 입력하세요 ex) 강남구', max_length=100),
+            model_name="cafeid",
+            name="distinct",
+            field=models.CharField(
+                help_text="구 단위로 입력하세요 ex) 강남구", max_length=100
+            ),
         ),
     ]

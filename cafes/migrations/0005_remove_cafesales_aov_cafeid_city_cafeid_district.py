@@ -4,26 +4,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cafes', '0004_remove_cafesales_cafes_cafes_cafe_id_18d008_idx_and_more'),
+        ("cafes", "0004_remove_cafesales_cafes_cafes_cafe_id_18d008_idx_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='cafesales',
-            name='aov',
+            model_name="cafesales",
+            name="aov",
         ),
         migrations.AddField(
-            model_name='cafeid',
-            name='city',
-            field=models.CharField(default='Seoul', max_length=50),
+            model_name="cafeid",
+            name="city",
+            field=models.CharField(default="Seoul", max_length=50),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='cafeid',
-            name='district',
-            field=models.CharField(default='Gangnam', max_length=50),
+            model_name="cafeid",
+            name="district",
+            field=models.CharField(default="Gangnam", max_length=50),
             preserve_default=False,
         ),
     ]

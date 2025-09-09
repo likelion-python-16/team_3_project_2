@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cafes', '0002_rename_cafeif_cafeid'),
+        ("cafes", "0002_rename_cafeif_cafeid"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='cafeid',
-            name='franchise',
+            model_name="cafeid",
+            name="franchise",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='cafeid',
-            name='franchise_type',
+            model_name="cafeid",
+            name="franchise_type",
             field=models.CharField(blank=True, max_length=50),
         ),
     ]

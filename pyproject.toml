@@ -1,0 +1,16 @@
+[tool.ruff]
+# Black과 동일한 라인 길이로 설정
+line-length = 88
+
+[tool.ruff.lint]
+# Flake8의 기본 규칙(E, F, W)과 import 정렬(I) 규칙을 활성화합니다.
+select = ["E", "F", "W", "I"]
+# Django 프로젝트 구조에 맞게, migrations 폴더 내의 __init__.py가 없는 문제를 무시합니다.
+ignore = ["E402"]
+
+# 특정 파일에 대해 특정 규칙을 무시합니다.
+[tool.ruff.lint.per-file-ignores]
+"*migrations/*.py" = ["E501"]
+
+[tool.ruff.format]
+# 포맷터 설정을 명시합니다.

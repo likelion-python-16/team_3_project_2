@@ -4,15 +4,14 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cafes', '0005_remove_cafesales_aov_cafeid_city_cafeid_district'),
+        ("cafes", "0005_remove_cafesales_aov_cafeid_city_cafeid_district"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='cafeid',
-            old_name='district',
-            new_name='distinct',
+            model_name="cafeid",
+            old_name="district",
+            new_name="distinct",
         ),
     ]

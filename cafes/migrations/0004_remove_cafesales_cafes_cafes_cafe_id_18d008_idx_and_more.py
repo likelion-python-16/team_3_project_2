@@ -4,34 +4,35 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cafes', '0003_cafeid_franchise_cafeid_franchise_type'),
+        ("cafes", "0003_cafeid_franchise_cafeid_franchise_type"),
     ]
 
     operations = [
         migrations.RemoveIndex(
-            model_name='cafesales',
-            name='cafes_cafes_cafe_id_18d008_idx',
+            model_name="cafesales",
+            name="cafes_cafes_cafe_id_18d008_idx",
         ),
         migrations.RemoveField(
-            model_name='cafesales',
-            name='date',
+            model_name="cafesales",
+            name="date",
         ),
         migrations.AddField(
-            model_name='cafesales',
-            name='month',
+            model_name="cafesales",
+            name="month",
             field=models.PositiveIntegerField(default=1),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='cafesales',
-            name='year',
+            model_name="cafesales",
+            name="year",
             field=models.PositiveIntegerField(default=2024),
             preserve_default=False,
         ),
         migrations.AddIndex(
-            model_name='cafesales',
-            index=models.Index(fields=['cafe', 'year', 'month'], name='cafes_cafes_cafe_id_7a119f_idx'),
+            model_name="cafesales",
+            index=models.Index(
+                fields=["cafe", "year", "month"], name="cafes_cafes_cafe_id_7a119f_idx"
+            ),
         ),
     ]

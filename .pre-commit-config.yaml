@@ -1,0 +1,10 @@
+repos:
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff의 버전을 pyproject.toml 또는 requirements.txt와 동기화하여 사용하세요.
+    rev: v0.5.5
+    hooks:
+        # Linter: 코드의 오류나 스타일 문제를 검사합니다.
+        -   id: ruff
+            args: [--fix, --exit-non-zero-on-fix]
+        # Formatter: 코드 스타일을 통일성 있게 자동으로 수정합니다.
+        -   id: ruff-format

@@ -4,14 +4,15 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cafes', '0009_alter_cafesales_month'),
+        ("cafes", "0009_alter_cafesales_month"),
     ]
 
     operations = [
         migrations.AddConstraint(
-            model_name='cafesales',
-            constraint=models.UniqueConstraint(fields=('cafe', 'year', 'month'), name='unique_cafe_year_month'),
+            model_name="cafesales",
+            constraint=models.UniqueConstraint(
+                fields=("cafe", "year", "month"), name="unique_cafe_year_month"
+            ),
         ),
     ]

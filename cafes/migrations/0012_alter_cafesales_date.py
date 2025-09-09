@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('cafes', '0011_remove_cafesales_unique_cafe_year_month_and_more'),
+        ("cafes", "0011_remove_cafesales_unique_cafe_year_month_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='cafesales',
-            name='date',
-            field=models.CharField(help_text='YYYY-MM 형식으로 입력 (예: 2025-07)', max_length=7),
+            model_name="cafesales",
+            name="date",
+            field=models.CharField(
+                help_text="YYYY-MM 형식으로 입력 (예: 2025-07)", max_length=7
+            ),
         ),
     ]
