@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
+import dj_database_url
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -31,9 +32,11 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 TOSS_SECRET_KEY = os.getenv("TOSS_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["*"]
+# Fly.io 배포를 위한 ALLOWED_HOSTS 설정
+FLY_APP_NAME = os.environ.get("FLY_APP_NAME")
+ALLOWED_HOSTS = [f"{FLY_APP_NAME}.fly.dev", "*"] if FLY_APP_NAME else ["*"]
 
 
 # Application definition
@@ -44,17 +47,20 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "whitenoise.runserver_nostatic",  # Whitenoise 추가
     "django.contrib.staticfiles",
     "django_prometheus",
     "rest_framework",
+    "drf_spectacular",
     "accounts",
     "cafes",
     "payments",
 ]
 
 MIDDLEWARE = [
-    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Whitenoise 미들웨어
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -89,12 +95,21 @@ WSGI_APPLICATION = "team3.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# Fly.io의 DATABASE_URL 환경 변수를 사용하여 PostgreSQL에 연결
+if os.environ.get("DATABASE_URL"):
+    DATABASES = {
+        "default": dj_database_url.config(
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 
 # Password validation
@@ -133,11 +148,13 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",  # CSS, JS, 이미지
 ]
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"  # collectstatic이 파일을 모을 디렉토리
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 
 AUTH_USER_MODEL = "accounts.User"
 
@@ -145,3 +162,17 @@ AUTH_USER_MODEL = "accounts.User"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# DRF Spectacular settings
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Team3 Cafe Analysis API",
+    "DESCRIPTION": "API for cafe business analysis and data management",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SCHEMA_PATH_PREFIX": r"/api/",
+}
+
+# Django REST Framework settings
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}

@@ -11,13 +11,17 @@ from .serializers import (
 
 
 class CafeIdViewSet(viewsets.ModelViewSet):
-    queryset = CafeId.objects.select_related("rp_key").order_by("name")
     serializer_class = CafeIdSerializer
     permission_classes = [permissions.AllowAny]
 
+    def get_queryset(self):
+        """
+        데이터베이스 쿼리가 요청 시에만 실행되도록 get_queryset을 오버라이드합니다.
+        """
+        return CafeId.objects.select_related("rp_key").order_by("name")
+
     @action(detail=False, methods=["get"])
     def template_list(self, request):
-
         from django.db.models import Avg
 
         cafes = self.get_queryset()

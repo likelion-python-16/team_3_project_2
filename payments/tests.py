@@ -19,19 +19,19 @@ class PaymentViewsTest(TestCase):
 
     def test_payment_page_loads_correctly(self):
         """/payment/ 페이지가 정상적으로 로드되는지 테스트"""
-        response = self.client.get(reverse("payments:payment_page"))
+        response = self.client.get(reverse("payments:payment"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "pages/payment.html")
 
     def test_summary_page_loads_correctly(self):
         """/summary/ 페이지가 정상적으로 로드되는지 테스트"""
-        response = self.client.get(reverse("payments:summary_page"))
+        response = self.client.get(reverse("payments:summary"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "pages/summary.html")
 
     def test_account_page_loads_correctly(self):
         """/account/ 페이지가 정상적으로 로드되는지 테스트"""
-        response = self.client.get(reverse("payments:account_page"))
+        response = self.client.get(reverse("payments:account"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "pages/account.html")
         self.assertEqual(response.context["profile"], self.profile)

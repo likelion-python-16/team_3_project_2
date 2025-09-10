@@ -130,11 +130,11 @@ class Command(BaseCommand):
             return
 
         self.stdout.write(
-                    self.style.SUCCESS(
-                        f"CafeId import completed: {success_count} success, "
-                        f"{error_count} errors"
-                    )
-                )
+            self.style.SUCCESS(
+                f"CafeId import completed: {success_count} success, "
+                f"{error_count} errors"
+            )
+        )
 
     def import_cafe_sales(self, file_path):
         self.stdout.write(f"Importing CafeSales data from {file_path}...")
@@ -160,10 +160,10 @@ class Command(BaseCommand):
                             except CafeId.DoesNotExist:
                                 error_count += 1
                                 self.stdout.write(
-                                self.style.WARNING(
-                                    f"Row {row_num}: Cafe with ID {cafe_id} not found"
+                                    self.style.WARNING(
+                                        f"Row {row_num}: Cafe ID {cafe_id} not found"
+                                    )
                                 )
-                            )
                                 continue
 
                             date_str = row["date"].strip()
@@ -208,8 +208,8 @@ class Command(BaseCommand):
             return
 
         self.stdout.write(
-                    self.style.SUCCESS(
-                        f"CafeSales import completed: {success_count} success, "
-                        f"{error_count} errors"
-                    )
-                )
+            self.style.SUCCESS(
+                f"CafeSales import completed: {success_count} success, "
+                f"{error_count} errors"
+            )
+        )

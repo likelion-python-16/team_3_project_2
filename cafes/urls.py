@@ -13,7 +13,7 @@ app_name = "cafes"
 
 # Router for ViewSets (both API and template actions)
 router = DefaultRouter()
-router.register(r"cafes", CafeIdViewSet)
+router.register(r"cafes", CafeIdViewSet, basename="cafe")
 
 # Manual URL patterns for simpler template access
 template_patterns = [

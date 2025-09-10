@@ -1,0 +1,1947 @@
+openapi: 3.0.3
+info:
+  title: Team3 Cafe Analysis API
+  version: 1.0.0
+  description: API for cafe business analysis and data management
+paths:
+  /:
+    get:
+      operationId: root_retrieve
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /accounts/users/:
+    get:
+      operationId: accounts_users_list
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+    post:
+      operationId: accounts_users_create
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /accounts/users/{user_id}/:
+    get:
+      operationId: accounts_users_retrieve
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        description: user을 식별하는 고유한 정수 값.
+        required: true
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: accounts_users_update
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        description: user을 식별하는 고유한 정수 값.
+        required: true
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: accounts_users_partial_update
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        description: user을 식별하는 고유한 정수 값.
+        required: true
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    delete:
+      operationId: accounts_users_destroy
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        description: user을 식별하는 고유한 정수 값.
+        required: true
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /accounts/users/login/:
+    post:
+      operationId: accounts_users_login_create
+      description: 사용자 로그인 API (세션 기반)
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /accounts/users/logout/:
+    post:
+      operationId: accounts_users_logout_create
+      description: 사용자 로그아웃 API (세션 기반)
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /accounts/users/me/:
+    get:
+      operationId: accounts_users_me_retrieve
+      description: 현재 사용자 정보 조회
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /accounts/users/register/:
+    post:
+      operationId: accounts_users_register_create
+      description: 사용자 회원가입 API
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/accounts/users/:
+    get:
+      operationId: accounts_users_list_2
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+    post:
+      operationId: accounts_users_create_2
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/accounts/users/{user_id}/:
+    get:
+      operationId: accounts_users_retrieve_2
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        description: user을 식별하는 고유한 정수 값.
+        required: true
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: accounts_users_update_2
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        description: user을 식별하는 고유한 정수 값.
+        required: true
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: accounts_users_partial_update_2
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        description: user을 식별하는 고유한 정수 값.
+        required: true
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    delete:
+      operationId: accounts_users_destroy_2
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        description: user을 식별하는 고유한 정수 값.
+        required: true
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/accounts/users/login/:
+    post:
+      operationId: accounts_users_login_create_2
+      description: 사용자 로그인 API (세션 기반)
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/accounts/users/logout/:
+    post:
+      operationId: accounts_users_logout_create_2
+      description: 사용자 로그아웃 API (세션 기반)
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/accounts/users/me/:
+    get:
+      operationId: accounts_users_me_retrieve_2
+      description: 현재 사용자 정보 조회
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/accounts/users/register/:
+    post:
+      operationId: accounts_users_register_create_2
+      description: 사용자 회원가입 API
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/cafes/:
+    get:
+      operationId: cafes_retrieve
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/:
+    get:
+      operationId: cafes_cafes_list
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CafeId'
+          description: ''
+    post:
+      operationId: cafes_cafes_create
+      tags:
+      - cafes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/{id}/:
+    get:
+      operationId: cafes_cafes_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+    put:
+      operationId: cafes_cafes_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - cafes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+    patch:
+      operationId: cafes_cafes_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - cafes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCafeId'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCafeId'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCafeId'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+    delete:
+      operationId: cafes_cafes_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/cafes/cafes/business_analysis/:
+    get:
+      operationId: cafes_cafes_business_analysis_retrieve
+      description: 사업자 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/filtered_data/:
+    get:
+      operationId: cafes_cafes_filtered_data_retrieve
+      description: 필터링된 카페 데이터를 반환하는 API - 인증 필요
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/franchise_cafe_count_analysis/:
+    get:
+      operationId: cafes_cafes_franchise_cafe_count_analysis_retrieve
+      description: 프랜차이즈 카페 수 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/franchise_growth_analysis/:
+    get:
+      operationId: cafes_cafes_franchise_growth_analysis_retrieve
+      description: 프랜차이즈 성장률 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/franchise_sales_analysis/:
+    get:
+      operationId: cafes_cafes_franchise_sales_analysis_retrieve
+      description: 프랜차이즈 매출 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/franchise_type_analysis/:
+    get:
+      operationId: cafes_cafes_franchise_type_analysis_retrieve
+      description: 프랜차이즈 타입별 브랜드 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/growth_rate_analysis/:
+    get:
+      operationId: cafes_cafes_growth_rate_analysis_retrieve
+      description: 성장률 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/map_markers/:
+    get:
+      operationId: cafes_cafes_map_markers_retrieve
+      description: 지도 마커용 카페 데이터를 반환하는 API - 인증 불필요
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/region_stats/:
+    get:
+      operationId: cafes_cafes_region_stats_retrieve
+      description: 지역별 통계 데이터를 반환하는 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/risk_area_analysis/:
+    get:
+      operationId: cafes_cafes_risk_area_analysis_retrieve
+      description: 위험 지역 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/store_count_analysis/:
+    get:
+      operationId: cafes_cafes_store_count_analysis_retrieve
+      description: 상권 수 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/template_list/:
+    get:
+      operationId: cafes_cafes_template_list_retrieve
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/trend_new_business_analysis/:
+    get:
+      operationId: cafes_cafes_trend_new_business_analysis_retrieve
+      description: 신규 사업자 현황 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/trend_sales_index_analysis/:
+    get:
+      operationId: cafes_cafes_trend_sales_index_analysis_retrieve
+      description: 매출 지수 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/trend_survival_rate_analysis/:
+    get:
+      operationId: cafes_cafes_trend_survival_rate_analysis_retrieve
+      description: 카페 생존율 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /api/cafes/cafes/trend_three_year_growth_analysis/:
+    get:
+      operationId: cafes_cafes_trend_three_year_growth_analysis_retrieve
+      description: 3년 성장률 트렌드 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/:
+    get:
+      operationId: cafes_list
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CafeId'
+          description: ''
+    post:
+      operationId: cafes_create
+      tags:
+      - cafes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/{id}/:
+    get:
+      operationId: cafes_retrieve_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+    put:
+      operationId: cafes_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - cafes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+    patch:
+      operationId: cafes_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - cafes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCafeId'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCafeId'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCafeId'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+    delete:
+      operationId: cafes_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /cafes/business_analysis/:
+    get:
+      operationId: cafes_business_analysis_retrieve
+      description: 사업자 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/:
+    get:
+      operationId: cafes_cafes_list_2
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CafeId'
+          description: ''
+    post:
+      operationId: cafes_cafes_create_2
+      tags:
+      - cafes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/{id}/:
+    get:
+      operationId: cafes_cafes_retrieve_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+    put:
+      operationId: cafes_cafes_update_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - cafes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CafeId'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+    patch:
+      operationId: cafes_cafes_partial_update_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - cafes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCafeId'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCafeId'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCafeId'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+    delete:
+      operationId: cafes_cafes_destroy_2
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /cafes/cafes/business_analysis/:
+    get:
+      operationId: cafes_cafes_business_analysis_retrieve_2
+      description: 사업자 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/filtered_data/:
+    get:
+      operationId: cafes_cafes_filtered_data_retrieve_2
+      description: 필터링된 카페 데이터를 반환하는 API - 인증 필요
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/franchise_cafe_count_analysis/:
+    get:
+      operationId: cafes_cafes_franchise_cafe_count_analysis_retrieve_2
+      description: 프랜차이즈 카페 수 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/franchise_growth_analysis/:
+    get:
+      operationId: cafes_cafes_franchise_growth_analysis_retrieve_2
+      description: 프랜차이즈 성장률 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/franchise_sales_analysis/:
+    get:
+      operationId: cafes_cafes_franchise_sales_analysis_retrieve_2
+      description: 프랜차이즈 매출 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/franchise_type_analysis/:
+    get:
+      operationId: cafes_cafes_franchise_type_analysis_retrieve_2
+      description: 프랜차이즈 타입별 브랜드 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/growth_rate_analysis/:
+    get:
+      operationId: cafes_cafes_growth_rate_analysis_retrieve_2
+      description: 성장률 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/map_markers/:
+    get:
+      operationId: cafes_cafes_map_markers_retrieve_2
+      description: 지도 마커용 카페 데이터를 반환하는 API - 인증 불필요
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/region_stats/:
+    get:
+      operationId: cafes_cafes_region_stats_retrieve_2
+      description: 지역별 통계 데이터를 반환하는 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/risk_area_analysis/:
+    get:
+      operationId: cafes_cafes_risk_area_analysis_retrieve_2
+      description: 위험 지역 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/store_count_analysis/:
+    get:
+      operationId: cafes_cafes_store_count_analysis_retrieve_2
+      description: 상권 수 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/template_list/:
+    get:
+      operationId: cafes_cafes_template_list_retrieve_2
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/trend_new_business_analysis/:
+    get:
+      operationId: cafes_cafes_trend_new_business_analysis_retrieve_2
+      description: 신규 사업자 현황 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/trend_sales_index_analysis/:
+    get:
+      operationId: cafes_cafes_trend_sales_index_analysis_retrieve_2
+      description: 매출 지수 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/trend_survival_rate_analysis/:
+    get:
+      operationId: cafes_cafes_trend_survival_rate_analysis_retrieve_2
+      description: 카페 생존율 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/cafes/trend_three_year_growth_analysis/:
+    get:
+      operationId: cafes_cafes_trend_three_year_growth_analysis_retrieve_2
+      description: 3년 성장률 트렌드 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/filtered_data/:
+    get:
+      operationId: cafes_filtered_data_retrieve
+      description: 필터링된 카페 데이터를 반환하는 API - 인증 필요
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/franchise_cafe_count_analysis/:
+    get:
+      operationId: cafes_franchise_cafe_count_analysis_retrieve
+      description: 프랜차이즈 카페 수 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/franchise_growth_analysis/:
+    get:
+      operationId: cafes_franchise_growth_analysis_retrieve
+      description: 프랜차이즈 성장률 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/franchise_sales_analysis/:
+    get:
+      operationId: cafes_franchise_sales_analysis_retrieve
+      description: 프랜차이즈 매출 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/franchise_type_analysis/:
+    get:
+      operationId: cafes_franchise_type_analysis_retrieve
+      description: 프랜차이즈 타입별 브랜드 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/growth_rate_analysis/:
+    get:
+      operationId: cafes_growth_rate_analysis_retrieve
+      description: 성장률 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/map_markers/:
+    get:
+      operationId: cafes_map_markers_retrieve
+      description: 지도 마커용 카페 데이터를 반환하는 API - 인증 불필요
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/region_stats/:
+    get:
+      operationId: cafes_region_stats_retrieve
+      description: 지역별 통계 데이터를 반환하는 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/risk_area_analysis/:
+    get:
+      operationId: cafes_risk_area_analysis_retrieve
+      description: 위험 지역 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/store_count_analysis/:
+    get:
+      operationId: cafes_store_count_analysis_retrieve
+      description: 상권 수 상세 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/template_list/:
+    get:
+      operationId: cafes_template_list_retrieve
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/trend_new_business_analysis/:
+    get:
+      operationId: cafes_trend_new_business_analysis_retrieve
+      description: 신규 사업자 현황 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/trend_sales_index_analysis/:
+    get:
+      operationId: cafes_trend_sales_index_analysis_retrieve
+      description: 매출 지수 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/trend_survival_rate_analysis/:
+    get:
+      operationId: cafes_trend_survival_rate_analysis_retrieve
+      description: 카페 생존율 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+  /cafes/trend_three_year_growth_analysis/:
+    get:
+      operationId: cafes_trend_three_year_growth_analysis_retrieve
+      description: 3년 성장률 트렌드 분석 API
+      tags:
+      - cafes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CafeId'
+          description: ''
+components:
+  schemas:
+    CafeId:
+      type: object
+      properties:
+        cafe_id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 140
+        city:
+          type: string
+          readOnly: true
+        distinct:
+          type: string
+          description: 구 단위로 입력하세요 ex) 강남구
+          maxLength: 100
+        detail_address:
+          type: string
+          description: 세부주소를 입력하세요
+          maxLength: 200
+        franchise:
+          type: boolean
+        franchise_type:
+          type: string
+          maxLength: 50
+        biz_code:
+          type: string
+          maxLength: 50
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        rp_key:
+          type: integer
+      required:
+      - cafe_id
+      - city
+      - detail_address
+      - distinct
+      - latitude
+      - longitude
+      - name
+      - rp_key
+    PatchedCafeId:
+      type: object
+      properties:
+        cafe_id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 140
+        city:
+          type: string
+          readOnly: true
+        distinct:
+          type: string
+          description: 구 단위로 입력하세요 ex) 강남구
+          maxLength: 100
+        detail_address:
+          type: string
+          description: 세부주소를 입력하세요
+          maxLength: 200
+        franchise:
+          type: boolean
+        franchise_type:
+          type: string
+          maxLength: 50
+        biz_code:
+          type: string
+          maxLength: 50
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        rp_key:
+          type: integer
+    PatchedUser:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          maxLength: 50
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+        role:
+          type: string
+          maxLength: 10
+        is_active:
+          type: boolean
+    User:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          maxLength: 50
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+        role:
+          type: string
+          maxLength: 10
+        is_active:
+          type: boolean
+      required:
+      - email
+      - password
+      - role
+      - user_id
+      - username
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

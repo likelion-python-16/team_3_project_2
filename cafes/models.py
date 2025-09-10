@@ -84,9 +84,9 @@ class CafeSales(models.Model):
 
             # 현재 날짜 기준 전월까지만 허용
             if now.month == 1:
-                max_year_month = f"{now.year-1:04d}-12"
+                max_year_month = f"{now.year - 1:04d}-12"
             else:
-                max_year_month = f"{now.year:04d}-{now.month-1:02d}"
+                max_year_month = f"{now.year:04d}-{now.month - 1:02d}"
 
             if self.date > max_year_month:
                 raise ValidationError(

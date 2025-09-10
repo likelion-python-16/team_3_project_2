@@ -36,7 +36,7 @@ class UserProfileModelTest(TestCase):
         self.user = User.objects.create_user(
             username="testuser", email="test@example.com"
         )
-        self.profile = UserProfile.objects.get(user=self.user)
+        self.profile = UserProfile.objects.create(user=self.user)
 
     def test_default_subscription(self):
         """기본 구독 상태가 'free'인지 테스트"""
@@ -91,6 +91,7 @@ class PaymentModelTest(TestCase):
         self.user = User.objects.create_user(
             username="testuser", email="test@example.com"
         )
+        self.profile = UserProfile.objects.create(user=self.user)
         self.payment = Payment.objects.create(
             user=self.user,
             amount=5000,
