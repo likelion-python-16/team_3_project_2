@@ -26,6 +26,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Run tests and generate reports
+      env:
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        DEBUG: True
       run: |
         pytest --junitxml=junit/test-results.xml --cov=. --cov-report=xml:coverage.xml
 
